@@ -1,0 +1,7 @@
+*.class
+*.txt
+.vscode
+teste.java
+*.in
+*.out
+anot.md
