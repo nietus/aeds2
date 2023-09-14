@@ -1,0 +1,1 @@
+<img src="src/2dcf20cc-5a26-11e4-89fb-62b861e5b29c.png" href="https://www.codewars.com/users/nietus">
