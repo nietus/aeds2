@@ -5,3 +5,6 @@ teste.java
 *.in
 *.out
 anot.md
+tmp
+*.swp
+*.exe

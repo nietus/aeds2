@@ -28,8 +28,8 @@ public class Caesar {
         for (int i = 0; i < s.length(); i++) {
             char ch = s.charAt(i);
             if (ch != '\uFFFD') {
-               ch = (char) (((int)ch + chave) % 128);
-             }
+                ch = (char) (((int)ch + chave) % 128);
+            }
             result += ch;
         }
         return result;
