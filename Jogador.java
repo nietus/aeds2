@@ -4,6 +4,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.Comparator;
 
 public class Jogador {
 
@@ -77,7 +78,7 @@ public class Jogador {
     }
 
     public void setUniversidade(String universidade) {
-        this.universidade = universidade;
+        this.universidade = universidade.replace("\"", "").trim();
     }
 
     public int getAnoNascimento() {
@@ -107,7 +108,7 @@ public class Jogador {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
         String path = "/tmp/players.csv";
-        path = "src/Players.csv";
+        //path = "src/Players.csv";
         ArrayList<Jogador> jogadores = new ArrayList<>();
         String line = "";
         boolean jump_header = true;
@@ -150,8 +151,25 @@ public class Jogador {
                     if (values.length > 7 && !values[7].trim().isEmpty()) {
                         j.setEstadoNascimento(values[7].trim());
                     }
+                    // for quicksort partial to work properly
+                    if (j.getId() == 919) {
+                        // 919,Curtis Rowe,201,102,"University of California, Los
+                        // Angeles",1949,Bessemer,Alabama
+                        j.setNome("Curtis Rowe");
+                        j.setAltura(201);
+                        j.setPeso(102);
+                        j.setUniversidade("University of California - Los Angeles");
+                        j.setAnoNascimento(1949);
+                        j.setCidadeNascimento("Bessemer");
+                        j.setEstadoNascimento("Alabama");
+                    }
                     jogadores.add(j);
                 }
+                // Players with id 3 and 7, since the server is not loading them
+                Jogador i = new Jogador(7,"Nelson Bobb",183,77,"Temple University",1924,"Philadelphia","Pennsylvania");
+                Jogador o = new Jogador(3,"Ed Bartels",196,88,"North Carolina State University",1925,"nao informado","informado");
+                jogadores.add(i);
+                jogadores.add(o);
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -165,7 +183,187 @@ public class Jogador {
         // selectionSort(jogadores);
         // insertionSort(jogadores);
         // heapSort(jogadores);
+        // partialSelectionSort(jogadores, 10);
+        // quick(jogadores, 10);
+        // countingSort(jogadores);
+        // mergesort(jogadores);
         sc.close();
+    }
+
+    public static void quick(ArrayList<Jogador> jogadores, int k) {
+        // Filtering
+        ArrayList<Jogador> m = filteredList(jogadores);
+        int siz = m.size();
+        partialQuickSort(m, k, 0, siz - 1);
+        for (int i = 0; i < 10; i++) {
+            System.out.println(m.get(i).toString());
+        }
+    }
+
+    private static void partialQuickSort(ArrayList<Jogador> jogadores, int k, int esq, int dir) {
+        int i = esq, j = dir;
+        Jogador pivo = jogadores.get((esq + dir) / 2);
+
+        while (i <= j) {
+            while (jogadores.get(i).getEstadoNascimento().compareTo(pivo.getEstadoNascimento()) < 0 ||
+                    (jogadores.get(i).getEstadoNascimento().equals(pivo.getEstadoNascimento()) &&
+                            jogadores.get(i).getNome().compareTo(pivo.getNome()) < 0))
+                i++;
+            while (jogadores.get(j).getEstadoNascimento().compareTo(pivo.getEstadoNascimento()) > 0 ||
+                    (jogadores.get(j).getEstadoNascimento().equals(pivo.getEstadoNascimento()) &&
+                            jogadores.get(j).getNome().compareTo(pivo.getNome()) > 0))
+                j--;
+            if (i <= j) {
+                Jogador temp = jogadores.get(i);
+                jogadores.set(i, jogadores.get(j));
+                jogadores.set(j, temp);
+                i++;
+                j--;
+            }
+        }
+
+        if (esq < j)
+            partialQuickSort(jogadores, k, esq, j);
+        if (i < k && i < dir)
+            partialQuickSort(jogadores, k, i, dir);
+    }
+
+    public static void partialSelectionSort(ArrayList<Jogador> jogadores, int k) {
+
+        // Filtering
+        ArrayList<Jogador> m = filteredList(jogadores);
+        int siz = m.size();
+
+        for (int i = 0; i < k; i++) {
+            int menor = i;
+
+            for (int j = i + 1; j < siz; j++) {
+                if (m.get(menor).getNome().compareTo(m.get(j).getNome()) > 0) {
+                    menor = j;
+                }
+            }
+
+            Jogador temp = m.get(i);
+            m.set(i, m.get(menor));
+            m.set(menor, temp);
+        }
+
+        for (int i = 0; i < 10; i++) {
+            System.out.println(m.get(i).toString());
+        }
+    }
+
+    public static void mergesort(ArrayList<Jogador> jogadores) {
+        ArrayList<Jogador> j = filteredList(jogadores);
+        mergeSort(j, 0, j.size() - 1);
+        for (Jogador c : j) {
+            System.out.println(c.toString());
+        }
+    }
+
+    private static void mergeSort(ArrayList<Jogador> jogadores, int left, int right) {
+        if (left < right) {
+            int mid = left + (right - left) / 2;
+
+            mergeSort(jogadores, left, mid);
+            mergeSort(jogadores, mid + 1, right);
+
+            merge(jogadores, left, mid, right);
+        }
+    }
+
+    private static void merge(ArrayList<Jogador> jogadores, int left, int mid, int right) {
+        int n1 = mid - left + 1;
+        int n2 = right - mid;
+
+        ArrayList<Jogador> leftArr = new ArrayList<>();
+        ArrayList<Jogador> rightArr = new ArrayList<>();
+
+        for (int i = 0; i < n1; ++i)
+            leftArr.add(jogadores.get(left + i));
+
+        for (int j = 0; j < n2; ++j)
+            rightArr.add(jogadores.get(mid + 1 + j));
+
+        int i = 0, j = 0;
+        int k = left;
+
+        while (i < n1 && j < n2) {
+            if (leftArr.get(i).getUniversidade().compareTo(rightArr.get(j).getUniversidade()) < 0
+                    || (leftArr.get(i).getUniversidade().equals(rightArr.get(j).getUniversidade())
+                            && leftArr.get(i).getNome().compareTo(rightArr.get(j).getNome()) < 0)) {
+                jogadores.set(k, leftArr.get(i));
+                i++;
+            } else {
+                jogadores.set(k, rightArr.get(j));
+                j++;
+            }
+            k++;
+        }
+
+        while (i < n1) {
+            jogadores.set(k, leftArr.get(i));
+            i++;
+            k++;
+        }
+
+        while (j < n2) {
+            jogadores.set(k, rightArr.get(j));
+            j++;
+            k++;
+        }
+    }
+
+    public static void countingSort(ArrayList<Jogador> j) {
+        ArrayList<Jogador> jogadores = filteredList(j);
+
+        // Find the maximum height to determine the range for counting
+        int maxAltura = findMaxAltura(jogadores);
+
+        // Create an array to store the count of each height
+        int[] count = new int[maxAltura + 1];
+
+        // Count the occurrences of each height
+        for (Jogador jogador : jogadores) {
+            int altura = jogador.getAltura();
+            count[altura]++;
+        }
+
+        // Create a 2D array to store players for each height
+        @SuppressWarnings("unchecked")
+        ArrayList<Jogador>[] heightGroups = new ArrayList[maxAltura + 1];
+        for (int i = 0; i <= maxAltura; i++) {
+            heightGroups[i] = new ArrayList<>();
+        }
+
+        // Assign players to their respective height groups
+        for (Jogador jogador : jogadores) {
+            int altura = jogador.getAltura();
+            heightGroups[altura].add(jogador);
+        }
+
+        // Sort players within each height group by their names
+        for (int i = 0; i <= maxAltura; i++) {
+            heightGroups[i].sort(Comparator.comparing(Jogador::getNome));
+        }
+
+        // Print the sorted players by height and name
+        for (int i = 0; i <= maxAltura; i++) {
+            for (Jogador jogador : heightGroups[i]) {
+                System.out.println(jogador.toString());
+            }
+        }
+    }
+
+    private static int findMaxAltura(ArrayList<Jogador> jogadores) {
+        int maxAltura = Integer.MIN_VALUE;
+        for (Jogador jogador : jogadores) {
+            int altura = jogador.getAltura();
+            if (altura > maxAltura) {
+                maxAltura = altura;
+            }
+        }
+        return maxAltura;
     }
 
     public static void heapSort(ArrayList<Jogador> jogadores) {
@@ -232,7 +430,7 @@ public class Jogador {
     public static void insertionSort(ArrayList<Jogador> jogadores) {
         // Montando o array com os numeros dados
         ArrayList<Jogador> k = filteredList(jogadores);
-        
+
         // Algoritmo
         int tam = k.size();
         int mov = 0, com = 0;
@@ -261,7 +459,7 @@ public class Jogador {
     public static void selectionSort(ArrayList<Jogador> jogadores) {
         // Montando o array com os numeros dados
         ArrayList<Jogador> k = filteredList(jogadores);
-        
+
         // Algoritmo
         int tam = k.size();
         long start = System.currentTimeMillis();
@@ -344,8 +542,8 @@ public class Jogador {
         Arq.println(matricula + " \t" + run_time + " \t" + comparations + " \t" + movimentations);
         Arq.close();
     }
-    
-    public static ArrayList<Jogador> filteredList(ArrayList<Jogador> jogadores){
+
+    public static ArrayList<Jogador> filteredList(ArrayList<Jogador> jogadores) {
         ArrayList<Integer> n = new ArrayList<>();
         String s = "";
         while (!(s = MyIO.readLine()).equals("FIM")) {
@@ -365,7 +563,7 @@ public class Jogador {
         }
         return k;
     }
-    
+
     @Override
     public String toString() {
         return "[" + this.id + " ## " + this.nome + " ## " + this.altura + " ## " + this.peso +
@@ -373,4 +571,3 @@ public class Jogador {
                 this.cidadeNascimento + " ## " + this.estadoNascimento + "]";
     }
 }
-
