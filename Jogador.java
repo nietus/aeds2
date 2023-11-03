@@ -105,7 +105,7 @@ public class Jogador {
         this.estadoNascimento = estadoNascimento;
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         Scanner sc = new Scanner(System.in);
         String path = "/tmp/players.csv";
         //path = "src/Players.csv";
@@ -165,11 +165,6 @@ public class Jogador {
                     }
                     jogadores.add(j);
                 }
-                // Players with id 3 and 7, since the server is not loading them
-                Jogador i = new Jogador(7,"Nelson Bobb",183,77,"Temple University",1924,"Philadelphia","Pennsylvania");
-                Jogador o = new Jogador(3,"Ed Bartels",196,88,"North Carolina State University",1925,"nao informado","informado");
-                jogadores.add(i);
-                jogadores.add(o);
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -187,6 +182,14 @@ public class Jogador {
         // quick(jogadores, 10);
         // countingSort(jogadores);
         // mergesort(jogadores);
+
+        // Data structures
+        //ListaSequencial lista = filteredSeqList(jogadores);
+        PilhaSequencial pilha = filteredSeqStack(jogadores);
+
+        for(int i = 0 ; i < pilha.getTamanho(); i++){
+            System.out.println(pilha.getJogador(i).customString(i));
+        }
         sc.close();
     }
 
@@ -564,10 +567,241 @@ public class Jogador {
         return k;
     }
 
+    public static ListaSequencial filteredSeqList(ArrayList<Jogador> jogadores) throws Exception {
+        ArrayList<Integer> n = new ArrayList<>();
+        String s = "";
+        while (!(s = MyIO.readLine()).equals("FIM")) {
+            try {
+                n.add(Integer.parseInt(s));
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+            }
+        }
+        ListaSequencial k = new ListaSequencial(1000);
+            for (int num : n) {
+                Jogador j = jogadores.get(num);
+                k.inserirFim(j);
+        }
+
+        int size = MyIO.readInt();
+
+        for (int i = 0; i < size; i++) {
+            String command = MyIO.readLine();
+            
+            String[] parts = command.split(" ");
+
+            String operation = parts[0];
+
+            switch (operation) {
+                case "II":
+                    String fileName = parts[1];
+                    Jogador inicio = jogadores.get(Integer.parseInt(fileName));
+                    k.inserirInicio(inicio);
+                    break;
+                case "I*":
+                    int position = Integer.parseInt(parts[1]);
+                    Jogador inserir = jogadores.get(Integer.parseInt(parts[2]));
+                    k.inserir(inserir, position);
+                    break;
+                case "IF":
+                    fileName = parts[1];
+                    Jogador fim = jogadores.get(Integer.parseInt(fileName));
+                    k.inserirFim(fim);
+                    break;
+                case "RI":
+                    System.out.println("(R) " + k.removerInicio().getNome());
+                    break;
+                case "R*":
+                    int removePosition = Integer.parseInt(parts[1]);
+                    System.out.println("(R) " + k.remover(removePosition).getNome());
+                    break;
+                case "RF":
+                    System.out.println("(R) " + k.removerFim().getNome());
+                    break;
+                default:
+                    System.out.println("Invalid command");
+            }
+        }
+        return k;
+    }
+
+        public static PilhaSequencial filteredSeqStack(ArrayList<Jogador> jogadores) throws Exception {
+        ArrayList<Integer> n = new ArrayList<>();
+        String s = "";
+        while (!(s = MyIO.readLine()).equals("FIM")) {
+            try {
+                n.add(Integer.parseInt(s));
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+            }
+        }
+        PilhaSequencial k = new PilhaSequencial(1000);
+            for (int num : n) {
+                Jogador j = jogadores.get(num);
+                k.inserir(j);
+        }
+
+        int size = MyIO.readInt();
+
+        for (int i = 0; i < size; i++) {
+            String command = MyIO.readLine();
+            
+            String[] parts = command.split(" ");
+
+            String operation = parts[0];
+
+            switch (operation) {
+                case "I":
+                    String fileName = parts[1];
+                    Jogador empilhar = jogadores.get(Integer.parseInt(fileName));
+                    k.inserir(empilhar);
+                    break;
+                case "R":
+                    System.out.println("(R) " + k.remover().getNome().replace('*', ' '));
+                    break;
+                default:
+                    System.out.println("Invalid command");
+            }
+        }
+        return k;
+    }
+
+     public String customString(int i) {
+        return "[" + i + "]" + " ## " + this.nome + " ## " + this.altura + " ## " + this.peso +
+                " ## " + this.anoNascimento + " ## " + this.universidade + " ## " +
+                this.cidadeNascimento + " ## " + this.estadoNascimento + " ##";
+    }
+
     @Override
     public String toString() {
         return "[" + this.id + " ## " + this.nome + " ## " + this.altura + " ## " + this.peso +
                 " ## " + this.anoNascimento + " ## " + this.universidade + " ## " +
                 this.cidadeNascimento + " ## " + this.estadoNascimento + "]";
+    }
+}
+
+class ListaSequencial {
+
+    private Jogador[] lista;
+    private int tamanho;
+
+    public ListaSequencial(int capacidade) {
+        lista = new Jogador[capacidade];
+        tamanho = 0;
+    }
+
+    public int getTamanho(){
+        return tamanho;
+    }
+
+    public Jogador getJogador(int x){
+        return lista[x];
+    }
+
+    public void inserirInicio(Jogador j) throws Exception {
+        if (tamanho >= lista.length) {
+            throw new Exception("List is full");
+        }
+
+        for (int i = tamanho; i > 0; i--) {
+            lista[i] = lista[i - 1];
+        }
+        lista[0] = j;
+        tamanho++;
+    }
+
+    public void inserirFim(Jogador j) throws Exception {
+        if (tamanho >= lista.length) {
+            throw new Exception("List is full");
+        }
+        lista[tamanho] = j;
+        tamanho++;
+    }
+
+    public void inserir(Jogador j, int x) throws Exception {
+        if (tamanho >= lista.length) {
+            throw new Exception("List is full");
+        }
+        if (x < 0 || x >= tamanho) {
+            throw new Exception("Invalid position");
+        }
+        for (int i = tamanho; i > x; i--) {
+            lista[i] = lista[i - 1];
+        }
+        lista[x] = j;
+        tamanho++;
+    }
+
+    public Jogador removerInicio() throws Exception {
+        if (tamanho <= 0) {
+            throw new Exception("List is empty");
+        }
+        Jogador removido = lista[0];
+        for (int i = 0; i < tamanho - 1; i++) {
+            lista[i] = lista[i + 1];
+        }
+        tamanho--;
+        return removido;
+    }
+
+    public Jogador removerFim() throws Exception {
+        if (tamanho <= 0) {
+            throw new Exception("List is empty");
+        }
+        Jogador removido = lista[tamanho - 1];
+        tamanho--;
+        return removido;
+    }
+
+    public Jogador remover(int x) throws Exception {
+        if (tamanho <= 0) {
+            throw new Exception("List is empty");
+        }
+        if (x < 0 || x >= tamanho) {
+            throw new Exception("Invalid Position");
+        }
+        Jogador removido = lista[x];
+
+        for (int i = x; i < tamanho - 1; i++) {
+            lista[i] = lista[i + 1];
+        }
+        tamanho--;
+        
+        return removido;
+    }
+}
+
+class PilhaSequencial{
+    private Jogador[] pilha;
+    int tamanho;
+
+    PilhaSequencial(int capacidade){
+        pilha = new Jogador[capacidade];
+        this.tamanho = 0;
+    }
+
+    public void inserir(Jogador j) throws Exception{
+        if(tamanho >= pilha.length){
+            throw new Exception("Stack is full");
+        }
+        pilha[tamanho] = j;
+        tamanho++;
+    }
+
+    public Jogador remover() throws Exception{
+        if(tamanho <= 0){
+            throw new Exception("Stack is empty");
+        }
+        Jogador removido = pilha[tamanho - 1];
+        tamanho--;
+        return removido;
+    }
+
+    public Jogador getJogador(int x){
+        return pilha[x];
+    }
+
+    public int getTamanho(){
+        return tamanho;
     }
 }
