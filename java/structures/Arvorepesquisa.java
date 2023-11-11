@@ -1,6 +1,8 @@
-public class arvorepesquisa {
+package structures;
+
+public class Arvorepesquisa {
     No raiz;
-    arvorepesquisa(){
+    Arvorepesquisa(){
         raiz = null;
     }
     

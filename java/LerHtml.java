@@ -9,14 +9,14 @@ class LerHtml {
         String resp = "", line;
 
         try {
-            url = new URL(endereco);
-            is = url.openStream();  // throws an IOException
+            url = new URI(endereco).toURL();
+            is = url.openStream();
             br = new BufferedReader(new InputStreamReader(is));
 
             while ((line = br.readLine()) != null) {
                 resp += line + "\n";
             }
-        } catch (MalformedURLException mue) {
+        } catch (MalformedURLException | URISyntaxException mue) {
             mue.printStackTrace();
         } catch (IOException ioe) {
             ioe.printStackTrace();

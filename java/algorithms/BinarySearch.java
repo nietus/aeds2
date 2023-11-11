@@ -1,3 +1,5 @@
+package algorithms;
+
 public class BinarySearch {
 	public static int binarySearch(int[] array, int alvo) {
 		int left = 0;

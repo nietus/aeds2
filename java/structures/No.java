@@ -1,3 +1,5 @@
+package structures;
+
 public class No {
     // for binary trees
     int elemento;

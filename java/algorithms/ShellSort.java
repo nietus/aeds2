@@ -1,3 +1,5 @@
+package algorithms;
+
 public class ShellSort {
     public void sort(int[] arr, int n){
         int h = 1; // Space between each color's element;

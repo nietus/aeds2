@@ -1,3 +1,5 @@
+package algorithms;
+
 public class MergeSort {
 
     public void mergeSort(int[] arr) {

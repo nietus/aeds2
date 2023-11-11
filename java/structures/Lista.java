@@ -1,3 +1,5 @@
+package structures;
+
 public class Lista {
     int[] array;
     int size;

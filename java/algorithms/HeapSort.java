@@ -1,4 +1,6 @@
-public class Heap {
+package algorithms;
+
+public class HeapSort {
     public static void heapsort(int[] arr) {
         int n = arr.length;
         // build heap
@@ -7,8 +9,9 @@ public class Heap {
         }
         // heapsort
         for (int i = n - 1; i >= 0; i--) {
-            Swap.swap(arr, 0, i);
-            heapify(arr, i, 0);
+            int aux = arr[0];
+            arr[0] = arr[i];
+            arr[i] = aux;
         }
     }
 
@@ -26,7 +29,9 @@ public class Heap {
         }
 
         if (largest != i) {
-            Swap.swap(arr, i, largest);
+            int aux = arr[i];
+            arr[i] = arr[largest];
+            arr[largest] = aux;
             heapify(arr, heapSize, largest);
         }
     }

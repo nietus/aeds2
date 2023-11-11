@@ -5,6 +5,7 @@
 
 #define INITIAL_MAX_PLAYERS 100
 #define MAX_STRING_LENGTH 100
+#define CAPACIDADE 5000
 
 int num_comp = 0;
 int num_mov = 0;
@@ -323,7 +324,7 @@ void partialInsertionSort(Jogador *arr, int size, int k)
 
 void partialHeapify(Jogador *arr, int n, int i)
 {
-    int largest = i; 
+    int largest = i;
     int left = 2 * i + 1;
     int right = 2 * i + 2;
 
@@ -363,10 +364,136 @@ void partialHeapSort(Jogador *arr, int n, int k)
     }
 }
 
+typedef struct
+{
+    Jogador lista[CAPACIDADE];
+    int tam;
+} ListaSequencial;
+
+void initListaSequencial(ListaSequencial *l)
+{
+    l->tam = 0;
+}
+
+void inserirInicioListaSequencial(ListaSequencial *l, Jogador j)
+{
+    if (l->tam >= CAPACIDADE)
+    {
+        printf("Tamanho maximo atingido!\n");
+    }
+    else
+    {
+        for (int i = l->tam; i > 0; i--)
+        {
+            l->lista[i] = l->lista[i - 1];
+        }
+        l->lista[0] = j;
+        l->tam++;
+    }
+}
+
+void inserirFimListaSequencial(ListaSequencial *l, Jogador j)
+{
+    if (l->tam >= CAPACIDADE)
+    {
+        printf("Tamanho maximo atingido!\n");
+    }
+    else
+    {
+        l->lista[l->tam] = j;
+        l->tam++;
+    }
+}
+
+void inserirListaSequencial(ListaSequencial *l, Jogador j, int x)
+{
+    if (l->tam >= CAPACIDADE || x >= CAPACIDADE)
+    {
+        printf("Tamanho maximo atingido!\n");
+    }
+    else
+    {
+        for (int i = l->tam; i >= x; i--)
+        {
+            l->lista[i] = l->lista[i - 1];
+        }
+        l->lista[x] = j;
+        l->tam++;
+    }
+}
+
+
+void removerInicioListaSequencial(ListaSequencial *l)
+{
+    if (l->tam <= 0)
+    {
+        printf("Empty!\n");
+    }
+    else
+    {
+        Jogador removed = l->lista[0];
+        printf("(R) %s\n",removed.nome);
+        for (int i = 0; i < l->tam - 1; i++)
+        {
+            l->lista[i] = l->lista[i + 1];
+        }
+        l->tam--;
+    }
+}
+
+void removerFimListaSequencial(ListaSequencial *l)
+{
+    if (l->tam <= 0)
+    {
+        printf("Empty!\n");
+    }
+    else
+    {
+        int tam = l->tam;
+        Jogador removed = l->lista[tam - 1];
+        printf("(R) %s\n",removed.nome);
+        l->tam--;
+    }
+}
+
+void removerListaSequencial(ListaSequencial *l, int x)
+{
+    if (l->tam <= 0 || x >= CAPACIDADE)
+    {
+        printf("Empty!\n");
+    }
+    else
+    {
+        Jogador removed = l->lista[x];
+        printf("(R) %s\n",removed.nome);
+        for (int i = x; i < l->tam - 1; i++)
+        {
+            l->lista[i] = l->lista[i + 1];
+        }
+        l->tam--;
+    }
+}
+
+void printPSeq(Jogador player, int i)
+{
+    printf("[%d] ## %s ## %d ## %d ## %d ## %s ## %s ## %s]\n",
+           i, player.nome, player.altura, player.peso,
+           player.anoNascimento, player.universidade,
+           player.cidadeNascimento, player.estadoNascimento);
+}
+
+void printArrayPSeq(ListaSequencial *l, int n, int i)
+{
+    for (int j = 0; j < n; j++)
+    {
+        printPSeq(l->lista[j], i++);
+    }
+}
+
 int main()
 {
-    //char path[] = "../src/Players.csv";
-    char path[] = "/tmp/players.csv";
+    char path[] = "../src/Players.csv";
+    // char path[] = "/tmp/players.csv";
 
     FILE *file = fopen(path, "r");
     if (file == NULL)
@@ -451,30 +578,98 @@ int main()
         jogadores[num_players++] = j;
     }
 
-    Jogador *k = malloc(num_players * sizeof(Jogador));
-    int i = 0;
+    // Jogador *k = malloc(num_players * sizeof(Jogador));
+    // int i = 0;
+    // char buffer[MAX_STRING_LENGTH];
+    // while (fgets(buffer, sizeof(buffer), stdin) != NULL)
+    // {
+    //     size_t len = strlen(buffer);
+    //     if (len > 0 && buffer[len - 1] == '\n')
+    //     {
+    //         buffer[len - 1] = '\0';
+    //     }
+    //     if (strcmp(buffer, "FIM") == 0)
+    //     {
+    //         break;
+    //     }
+    //     for (int b = 0; b < num_players; b++)
+    //     {
+    //         if (jogadores[b].id == atoi(buffer) ) // && jogadores[b].anoNascimento > 100) // && for bubble and partial insertion to work, due to bad formatation of the csv
+    //         {
+    //             k[i] = jogadores[b];
+    //             i++;
+    //             break;
+    //         }
+    //     }
+    // }
+
+    ListaSequencial l;
+    initListaSequencial(&l);
+
     char buffer[MAX_STRING_LENGTH];
-    while (fgets(buffer, sizeof(buffer), stdin) != NULL)
+    while (fgets(buffer, sizeof(buffer), stdin) != NULL && strncmp(buffer, "FIM", 3) != 0)
     {
+        // Ensure jogadores array is properly initialized and has valid data
         size_t len = strlen(buffer);
         if (len > 0 && buffer[len - 1] == '\n')
         {
             buffer[len - 1] = '\0';
         }
-        if (strcmp(buffer, "FIM") == 0)
-        {
-            break;
-        }
+        int index = atoi(buffer);
         for (int b = 0; b < num_players; b++)
         {
-            if (jogadores[b].id == atoi(buffer) && jogadores[b].anoNascimento > 100) // && for bubble and partial insertion to work, due to bad formatation of the csv
+            if (jogadores[b].id == atoi(buffer))
             {
-                k[i] = jogadores[b];
-                i++;
+                inserirFimListaSequencial(&l, jogadores[b]);
                 break;
             }
         }
     }
+
+    int size;
+    scanf("%d", &size);
+    int skip = 0;
+    
+
+    for (int i = 0; i < size + 1; i++) {
+        char command[MAX_STRING_LENGTH];
+        fgets(command, sizeof(command), stdin);
+
+        char *operation = strtok(command, " ");
+
+        // printf("%s\n",operation);
+
+        size_t len = strlen(command);
+        if (len > 0 && command[len - 1] == '\n')
+        {
+            command[len - 1] = '\0';
+        }
+
+        if (strcmp(operation, "II") == 0) {
+            char *part1 = strtok(NULL, "\0");
+            inserirInicioListaSequencial(&l,jogadores[atoi(part1)]);
+            // printf("II %s\n",part1);
+        } else if (strcmp(operation, "I*") == 0) {
+            char *part1 = strtok(NULL, " ");
+            char *part2 = strtok(NULL, "\0");
+            // printf("I* %s %s\n",part1,part2);
+            inserirListaSequencial(&l,jogadores[atoi(part1)],atoi(part2));
+        } else if (strcmp(operation, "IF") == 0) {
+            char *fileName = strtok(NULL, "\0");
+            // printf("IF %s\n",fileName);
+            inserirFimListaSequencial(&l, jogadores[atoi(fileName)]);
+        } else if (strcmp(operation, "RI") == 0) {
+            removerInicioListaSequencial(&l);
+        } else if (strcmp(operation, "R*") == 0) {
+            char *removePosition = strtok(NULL, "\0");
+            // printf("R* %s\n",removePosition);
+            removerListaSequencial(&l,atoi(removePosition));
+        } else if (strcmp(operation, "RF") == 0) {
+            removerFimListaSequencial(&l);
+        }
+    }
+
+    printArrayPSeq(&l, l.tam, 0);
 
     // selectionSortRec(k, 0, i);
 
@@ -490,7 +685,7 @@ int main()
 
     // partialHeapSort(k,i,10);
 
-    printArrayP(k, 10);
+    // printArrayP(k, 10);
 
     // Free
     for (int idx = 0; idx < num_players; idx++)
@@ -498,7 +693,7 @@ int main()
         freeJogador(&jogadores[idx]);
     }
     free(jogadores);
-    free(k);
+    // free(k);
 
     fclose(file);
 

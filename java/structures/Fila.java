@@ -1,3 +1,5 @@
+package structures;
+
 public class Fila {
     //implementacao circular
     int[] arr;

@@ -1,3 +1,5 @@
+package structures;
+
 class Celula {
 
     // Implementation for flexible simple List

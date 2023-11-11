@@ -1,4 +1,6 @@
-public class Insercao {
+package algorithms;
+
+public class InsertionSort {
     public void sort(int[] arr, int n){
         for(int i = 1; i < n; i++){
             int tmp = arr[i];
