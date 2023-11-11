@@ -1,4 +1,4 @@
-package structures;
+package algorithms;
 
 public class SelectionSort {
     public void sort(int[] arr, int n) {
