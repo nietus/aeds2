@@ -108,7 +108,7 @@ public class Jogador {
     public static void main(String[] args) throws Exception {
         Scanner sc = new Scanner(System.in);
         String path = "/tmp/players.csv";
-        //path = "src/Players.csv";
+        //path = "../src/Players.csv";
         ArrayList<Jogador> jogadores = new ArrayList<>();
         String line = "";
         boolean jump_header = true;
@@ -184,12 +184,23 @@ public class Jogador {
         // mergesort(jogadores);
 
         // Data structures
-        //ListaSequencial lista = filteredSeqList(jogadores);
-        PilhaSequencial pilha = filteredSeqStack(jogadores);
+        // ListaSequencial lista = filteredSeqList(jogadores);
+        // PilhaSequencial pilha = filteredSeqStack(jogadores);
 
-        for(int i = 0 ; i < pilha.getTamanho(); i++){
-            System.out.println(pilha.getJogador(i).customString(i));
-        }
+        // for(int i = 0 ; i < pilha.getTamanho(); i++){
+        // System.out.println(pilha.getJogador(i).customString(i));
+        // }
+
+        // ListaFlexivel listaFlex = filteredFlexList(jogadores);
+        // for(int i = 0 ; i < listaFlex.getTamanho(); i++){
+        // System.out.println(listaFlex.getJogador(i).customString(i));
+        // }
+
+        // PilhaFlexivel pilhaFlex = filteredFlexStack(jogadores);
+        // pilhaFlex.mostrarRecursivo(pilhaFlex.getTopo(), 0);
+
+
+
         sc.close();
     }
 
@@ -578,16 +589,16 @@ public class Jogador {
             }
         }
         ListaSequencial k = new ListaSequencial(1000);
-            for (int num : n) {
-                Jogador j = jogadores.get(num);
-                k.inserirFim(j);
+        for (int num : n) {
+            Jogador j = jogadores.get(num);
+            k.inserirFim(j);
         }
 
         int size = MyIO.readInt();
 
         for (int i = 0; i < size; i++) {
             String command = MyIO.readLine();
-            
+
             String[] parts = command.split(" ");
 
             String operation = parts[0];
@@ -625,7 +636,7 @@ public class Jogador {
         return k;
     }
 
-        public static PilhaSequencial filteredSeqStack(ArrayList<Jogador> jogadores) throws Exception {
+    public static PilhaSequencial filteredSeqStack(ArrayList<Jogador> jogadores) throws Exception {
         ArrayList<Integer> n = new ArrayList<>();
         String s = "";
         while (!(s = MyIO.readLine()).equals("FIM")) {
@@ -636,16 +647,16 @@ public class Jogador {
             }
         }
         PilhaSequencial k = new PilhaSequencial(1000);
-            for (int num : n) {
-                Jogador j = jogadores.get(num);
-                k.inserir(j);
+        for (int num : n) {
+            Jogador j = jogadores.get(num);
+            k.inserir(j);
         }
 
         int size = MyIO.readInt();
 
         for (int i = 0; i < size; i++) {
             String command = MyIO.readLine();
-            
+
             String[] parts = command.split(" ");
 
             String operation = parts[0];
@@ -666,7 +677,117 @@ public class Jogador {
         return k;
     }
 
-     public String customString(int i) {
+    public static ListaFlexivel filteredFlexList(ArrayList<Jogador> jogadores) throws Exception {
+        ArrayList<Integer> n = new ArrayList<>();
+        String s = "";
+        while (!(s = MyIO.readLine()).equals("FIM")) {
+            try {
+                n.add(Integer.parseInt(s));
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+            }
+        }
+        ListaFlexivel k = new ListaFlexivel();
+        for (int num : n) {
+            Jogador j = jogadores.get(num);
+            k.inserirFim(j);
+        }
+
+        int size = MyIO.readInt();
+        // System.out.println(size);
+
+        for (int i = 0; i < size; i++) {
+            String command = MyIO.readLine();
+
+            String[] parts = command.split(" ");
+
+            String operation = parts[0];
+
+            switch (operation) {
+                case "II":
+                    String fileName = parts[1];
+                    Jogador inicio = jogadores.get(Integer.parseInt(fileName));
+                    k.inserirInicio(inicio);
+                    break;
+                case "I*":
+                    int position = Integer.parseInt(parts[1]);
+                    Jogador inserir = jogadores.get(Integer.parseInt(parts[2]));
+                    k.inserir(inserir, position);
+                    break;
+                case "IF":
+                    fileName = parts[1];
+                    Jogador fim = jogadores.get(Integer.parseInt(fileName));
+                    k.inserirFim(fim);
+                    break;
+                case "RI":
+                    System.out.println("(R) " + k.removerInicio().getNome());
+                    break;
+                case "R*":
+                    int removePosition = Integer.parseInt(parts[1]);
+                    System.out.println("(R) " + k.remover(removePosition).getNome());
+                    break;
+                case "RF":
+                    System.out.println("(R) " + k.removerFim().getNome());
+                    break;
+                default:
+                    System.out.println("Invalid command");
+            }
+        }
+        return k;
+    }
+
+    public static PilhaFlexivel filteredFlexStack(ArrayList<Jogador> jogadores) throws Exception {
+        ArrayList<Integer> n = new ArrayList<>();
+        String s = "";
+    
+        while (!(s = MyIO.readLine()).equals("FIM")) {
+            try {
+                n.add(Integer.parseInt(s));
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+            }
+        }
+    
+        PilhaFlexivel k = new PilhaFlexivel();
+    
+        for (int num : n) {
+            Jogador j = jogadores.get(num);
+            k.empilhar(j);
+        }
+    
+        int size = Integer.parseInt(MyIO.readLine());
+
+        for(int i = 0; i < size - 1; i++){
+
+            String command = MyIO.readLine();
+    
+            String[] parts = command.split(" ");
+    
+            String operation = parts[0];
+    
+            switch (operation) {
+                case "I":
+                    String idx = parts[1];
+                    Jogador jogador = jogadores.get(Integer.parseInt(idx));
+                    k.empilhar(jogador);
+                    break;
+                case "R":
+                    System.out.println("(R) " + k.getJogadorTopo().getNome().replace('*', ' '));
+                    k.desempilhar();
+                    break;
+                default:
+                    System.out.println("Invalid command");
+            }
+        }
+
+        System.out.println("(R) " + k.getJogadorTopo().getNome().replace('*', ' '));
+        k.desempilhar();
+
+        return k;
+    }
+    
+
+    public String customString(int i) {
         return "[" + i + "]" + " ## " + this.nome + " ## " + this.altura + " ## " + this.peso +
                 " ## " + this.anoNascimento + " ## " + this.universidade + " ## " +
                 this.cidadeNascimento + " ## " + this.estadoNascimento + " ##";
@@ -690,11 +811,11 @@ class ListaSequencial {
         tamanho = 0;
     }
 
-    public int getTamanho(){
+    public int getTamanho() {
         return tamanho;
     }
 
-    public Jogador getJogador(int x){
+    public Jogador getJogador(int x) {
         return lista[x];
     }
 
@@ -766,30 +887,31 @@ class ListaSequencial {
             lista[i] = lista[i + 1];
         }
         tamanho--;
-        
+
         return removido;
     }
 }
 
-class PilhaSequencial{
+class PilhaSequencial {
+
     private Jogador[] pilha;
     int tamanho;
 
-    PilhaSequencial(int capacidade){
+    PilhaSequencial(int capacidade) {
         pilha = new Jogador[capacidade];
         this.tamanho = 0;
     }
 
-    public void inserir(Jogador j) throws Exception{
-        if(tamanho >= pilha.length){
+    public void inserir(Jogador j) throws Exception {
+        if (tamanho >= pilha.length) {
             throw new Exception("Stack is full");
         }
         pilha[tamanho] = j;
         tamanho++;
     }
 
-    public Jogador remover() throws Exception{
-        if(tamanho <= 0){
+    public Jogador remover() throws Exception {
+        if (tamanho <= 0) {
             throw new Exception("Stack is empty");
         }
         Jogador removido = pilha[tamanho - 1];
@@ -797,11 +919,233 @@ class PilhaSequencial{
         return removido;
     }
 
-    public Jogador getJogador(int x){
+    public Jogador getJogador(int x) {
         return pilha[x];
     }
 
-    public int getTamanho(){
+    public int getTamanho() {
         return tamanho;
+    }
+}
+
+class ListaFlexivel {
+
+    private Celula primeiro, ultimo;
+    private int tamanho;
+
+    public ListaFlexivel() {
+        primeiro = null;
+        ultimo = null;
+        tamanho = 0;
+    }
+
+    public int getTamanho() {
+        return tamanho;
+    }
+
+    public Jogador getJogador(int x) throws Exception {
+        if (x < 0 || x >= tamanho) {
+            throw new Exception("Invalid position");
+        }
+
+        Celula atual = primeiro;
+        for (int i = 0; i < x; i++) {
+            atual = atual.prox;
+        }
+
+        return atual.j;
+    }
+
+    public void inserirInicio(Jogador j) {
+        Celula novaCelula = new Celula(j);
+        if (primeiro == null) {
+            primeiro = novaCelula;
+            ultimo = novaCelula;
+        } else {
+            novaCelula.prox = primeiro;
+            primeiro = novaCelula;
+        }
+        tamanho++;
+    }
+
+    public void inserirFim(Jogador j) {
+        Celula novaCelula = new Celula(j);
+        if (ultimo == null) {
+            primeiro = novaCelula;
+            ultimo = novaCelula;
+        } else {
+            ultimo.prox = novaCelula;
+            ultimo = novaCelula;
+        }
+        tamanho++;
+    }
+
+    public void inserir(Jogador j, int x) throws Exception {
+        if (x < 0 || x > tamanho) {
+            throw new Exception("Invalid position");
+        }
+
+        if (x == 0) {
+            inserirInicio(j);
+        } else if (x == tamanho) {
+            inserirFim(j);
+        } else {
+            Celula novaCelula = new Celula(j);
+            Celula atual = primeiro;
+
+            for (int i = 0; i < x - 1; i++) {
+                atual = atual.prox;
+            }
+
+            novaCelula.prox = atual.prox;
+            atual.prox = novaCelula;
+            tamanho++;
+        }
+    }
+
+    public Jogador removerInicio() throws Exception {
+        if (tamanho <= 0) {
+            throw new Exception("List is empty");
+        }
+
+        Jogador removido = primeiro.j;
+        primeiro = primeiro.prox;
+        tamanho--;
+
+        if (tamanho == 0) {
+            ultimo = null;
+        }
+
+        return removido;
+    }
+
+    public Jogador removerFim() throws Exception {
+        if (tamanho <= 0) {
+            throw new Exception("List is empty");
+        }
+
+        Jogador removido;
+        if (tamanho == 1) {
+            removido = primeiro.j;
+            primeiro = null;
+            ultimo = null;
+        } else {
+            Celula atual = primeiro;
+            while (atual.prox != ultimo) {
+                atual = atual.prox;
+            }
+
+            removido = ultimo.j;
+            ultimo = atual;
+            ultimo.prox = null;
+        }
+
+        tamanho--;
+        return removido;
+    }
+
+    public Jogador remover(int x) throws Exception {
+        if (tamanho <= 0 || x < 0 || x >= tamanho) {
+            throw new Exception("Invalid position or list is empty");
+        }
+
+        Jogador removido;
+        if (x == 0) {
+            removido = removerInicio();
+        } else if (x == tamanho - 1) {
+            removido = removerFim();
+        } else {
+            Celula atual = primeiro;
+            for (int i = 0; i < x - 1; i++) {
+                atual = atual.prox;
+            }
+
+            removido = atual.prox.j;
+            atual.prox = atual.prox.prox;
+            tamanho--;
+        }
+
+        return removido;
+    }
+}
+
+class Celula {
+    public Jogador j;
+    public Celula prox;
+
+    public Celula(Jogador jogador) {
+        this.j = jogador;
+        this.prox = null;
+    }
+}
+
+class PilhaFlexivel {
+
+    private Celula topo;
+    private int tamanho;
+
+    public PilhaFlexivel() {
+        topo = null;
+        tamanho = 0;
+    }
+
+    public int getTamanho() {
+        return tamanho;
+    }
+
+    public Jogador getJogador(int x) throws Exception {
+        if (x < 0 || x >= tamanho) {
+            throw new Exception("Invalid position");
+        }
+
+        Celula atual = topo;
+        for (int i = 0; i < x; i++) {
+            atual = atual.prox;
+        }
+
+        return atual.j;
+    }
+
+    public Celula getTopo() throws Exception {
+        if (topo == null) {
+            throw new Exception("Stack is empty");
+        }
+        return topo;
+    }
+
+    public Jogador getJogadorTopo() throws Exception {
+        if (topo == null) {
+            throw new Exception("Stack is empty");
+        }
+        return topo.j;
+    }
+
+    public void empilhar(Jogador j) {
+        Celula novaCelula = new Celula(j);
+        novaCelula.prox = topo;
+        topo = novaCelula;
+        tamanho++;
+    }
+
+    public Jogador desempilhar() throws Exception {
+        if (topo == null) {
+            throw new Exception("Stack is empty");
+        }
+
+        Jogador removido = topo.j;
+        Celula tmp = topo;
+        topo = topo.prox;
+        tmp.prox = null;
+        tamanho--;
+
+        return removido;
+    }
+
+    public void mostrarRecursivo(Celula atual, int cont) {
+        if (atual != null) {
+            tamanho = tamanho - 1;
+            mostrarRecursivo(atual.prox, tamanho);
+            System.out.println(atual.j.customString(cont));
+        }
     }
 }
