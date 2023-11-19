@@ -199,10 +199,39 @@ public class Jogador {
         // PilhaFlexivel pilhaFlex = filteredFlexStack(jogadores);
         // pilhaFlex.mostrarRecursivo(pilhaFlex.getTopo(), 0);
 
+        ListaDuplamenteEncadeada listaDupla = filteredListaDupla(jogadores);
+        listaDupla.quicksort();
+
+        CelulaDupla current = listaDupla.getPrimeiro();
+        while (current != null) {
+            System.out.println(current.j.toString());
+            current = current.prox;
+        }
 
 
         sc.close();
     }
+
+    private static ListaDuplamenteEncadeada filteredListaDupla(ArrayList<Jogador> jogadores) {
+        ArrayList<Integer> n = new ArrayList<>();
+        String s = "";
+        while (!(s = MyIO.readLine()).equals("FIM")) {
+            try {
+                n.add(Integer.parseInt(s));
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+            }
+        }
+        ListaDuplamenteEncadeada k = new ListaDuplamenteEncadeada();
+        for (int num : n) {
+            for (Jogador j : jogadores) {
+                if (j.getId() == num) {
+                    k.inserirFim(j);
+                }
+            }
+        }
+        return k;
+}
 
     public static void quick(ArrayList<Jogador> jogadores, int k) {
         // Filtering
@@ -1148,4 +1177,215 @@ class PilhaFlexivel {
             System.out.println(atual.j.customString(cont));
         }
     }
+}
+
+class CelulaDupla {
+    public Jogador j;
+    public CelulaDupla ant, prox;
+
+    public CelulaDupla(Jogador jogador) {
+        this.j = jogador;
+        this.ant = null;
+        this.prox = null;
+    }
+}
+
+class ListaDuplamenteEncadeada {
+
+    private CelulaDupla primeiro, ultimo;
+    private int tamanho;
+
+    public ListaDuplamenteEncadeada() {
+        primeiro = null;
+        ultimo = null;
+        tamanho = 0;
+    }
+
+    public int getTamanho() {
+        return tamanho;
+    }
+    
+    public CelulaDupla getPrimeiro(){
+        return primeiro;
+    }
+
+    public Jogador getJogador(int x) throws Exception {
+        if (x < 0 || x >= tamanho) {
+            throw new Exception("Invalid position");
+        }
+
+        CelulaDupla atual = primeiro;
+        for (int i = 0; i < x; i++) {
+            atual = atual.prox;
+        }
+
+        return atual.j;
+    }
+
+    public void inserirInicio(Jogador j) {
+        CelulaDupla novaCelula = new CelulaDupla(j);
+        if (primeiro == null) {
+            primeiro = novaCelula;
+            ultimo = novaCelula;
+        } else {
+            novaCelula.prox = primeiro;
+            primeiro.ant = novaCelula;
+            primeiro = novaCelula;
+        }
+        tamanho++;
+    }
+
+    public void inserirFim(Jogador j) {
+        CelulaDupla novaCelula = new CelulaDupla(j);
+        if (ultimo == null) {
+            primeiro = novaCelula;
+            ultimo = novaCelula;
+        } else {
+            ultimo.prox = novaCelula;
+            novaCelula.ant = ultimo;
+            ultimo = novaCelula;
+        }
+        tamanho++;
+    }
+
+    public void inserir(Jogador j, int x) throws Exception {
+        if (x < 0 || x > tamanho) {
+            throw new Exception("Invalid position");
+        }
+
+        if (x == 0) {
+            inserirInicio(j);
+        } else if (x == tamanho) {
+            inserirFim(j);
+        } else {
+            CelulaDupla novaCelula = new CelulaDupla(j);
+            CelulaDupla atual = primeiro;
+
+            for (int i = 0; i < x - 1; i++) {
+                atual = atual.prox;
+            }
+
+            novaCelula.prox = atual.prox;
+            novaCelula.ant = atual;
+            atual.prox.ant = novaCelula;
+            atual.prox = novaCelula;
+            tamanho++;
+        }
+    }
+
+    public Jogador removerInicio() throws Exception {
+        if (tamanho <= 0) {
+            throw new Exception("List is empty");
+        }
+
+        Jogador removido = primeiro.j;
+        primeiro = primeiro.prox;
+
+        if (primeiro != null) {
+            primeiro.ant = null;
+        } else {
+            ultimo = null;
+        }
+
+        tamanho--;
+        return removido;
+    }
+
+    public Jogador removerFim() throws Exception {
+        if (tamanho <= 0) {
+            throw new Exception("List is empty");
+        }
+
+        Jogador removido = ultimo.j;
+        ultimo = ultimo.ant;
+
+        if (ultimo != null) {
+            ultimo.prox = null;
+        } else {
+            primeiro = null;
+        }
+
+        tamanho--;
+        return removido;
+    }
+
+    public Jogador remover(int x) throws Exception {
+        if (tamanho <= 0 || x < 0 || x >= tamanho) {
+            throw new Exception("Invalid position or list is empty");
+        }
+
+        Jogador removido;
+        if (x == 0) {
+            removido = removerInicio();
+        } else if (x == tamanho - 1) {
+            removido = removerFim();
+        } else {
+            CelulaDupla atual = primeiro;
+            for (int i = 0; i < x - 1; i++) {
+                atual = atual.prox;
+            }
+
+            removido = atual.prox.j;
+            atual.prox = atual.prox.prox;
+            atual.prox.ant = atual;
+            tamanho--;
+        }
+
+        return removido;
+    }
+
+    private int[] counts = new int[2];
+
+    public void quicksort() {
+        long start = System.currentTimeMillis();
+        quicksort(this.primeiro, this.ultimo);
+        long end = System.currentTimeMillis();
+        Jogador.log("_quicksort2.txt", end - start, counts[0], counts[1]);
+    }
+
+    private void trocarCelulas(CelulaDupla celula1, CelulaDupla celula2) {
+        Jogador temp = celula1.j;
+        celula1.j = celula2.j;
+        celula2.j = temp;
+        counts[1] += 3;
+    }
+
+    private CelulaDupla partition(CelulaDupla low, CelulaDupla high) {
+        Jogador pivot = high.j;
+
+        CelulaDupla i = low.ant;
+
+        for (CelulaDupla j = low; j != high; j = j.prox) {
+            counts[0]++;
+            if (compareJogador(j.j, pivot) <= 0) {
+                i = (i == null) ? low : i.prox;
+                trocarCelulas(i, j);
+            }
+        }
+
+        i = (i == null) ? low : i.prox;
+        trocarCelulas(i, high);
+
+        return i;
+    }
+
+    private void quicksort(CelulaDupla low, CelulaDupla high) {
+        if (low != null && high != null && low != high && low.ant != high) {
+            CelulaDupla pivot = partition(low, high);
+
+            quicksort(low, pivot.ant);
+            quicksort(pivot.prox, high);
+        }
+    }
+
+    private int compareJogador(Jogador j1, Jogador j2) {
+        int estadoComparison = j1.getEstadoNascimento().compareTo(j2.getEstadoNascimento());
+
+        if (estadoComparison == 0) {
+            return j1.getNome().compareTo(j2.getNome());
+        }
+
+        return estadoComparison;
+    }
+
 }

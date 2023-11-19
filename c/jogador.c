@@ -763,6 +763,102 @@ void printFilaLinear(FilaLinear *fila) {
     }
 }
 
+typedef struct CelulaDupla {
+    Jogador data;
+    struct CelulaDupla* ant;
+    struct CelulaDupla* prox;
+} CelulaDupla;
+
+typedef struct {
+    CelulaDupla* primeiro;
+    CelulaDupla* ultimo;
+    int tamanho;
+} ListaDuplamenteEncadeada;
+
+void inicializarListaD(ListaDuplamenteEncadeada* lista) {
+    lista->primeiro = NULL;
+    lista->ultimo = NULL;
+    lista->tamanho = 0;
+}
+
+void inserirFimD(ListaDuplamenteEncadeada* lista, Jogador j) {
+    CelulaDupla* novaCelula = (CelulaDupla*)malloc(sizeof(CelulaDupla));
+    novaCelula->data = j;
+    novaCelula->ant = NULL;
+    novaCelula->prox = NULL;
+
+    if (lista->tamanho == 0) {
+        lista->primeiro = novaCelula;
+        lista->ultimo = novaCelula;
+    } else {
+        novaCelula->ant = lista->ultimo;
+        lista->ultimo->prox = novaCelula;
+        lista->ultimo = novaCelula;
+    }
+
+    lista->tamanho++;
+}
+
+void mostrarListaD(ListaDuplamenteEncadeada* lista) {
+    CelulaDupla* atual = lista->primeiro;
+
+    while (atual != NULL) {
+        printJogador(atual->data);
+        atual = atual->prox;
+    }
+}
+
+int compareJogador(Jogador j1, Jogador j2) {
+    int estadoComparison = strcmp(j1.estadoNascimento, j2.estadoNascimento);
+
+    if (estadoComparison == 0) {
+        return strcmp(j1.nome, j2.nome);
+    }
+
+    return estadoComparison;
+}
+
+void trocarCelulas(CelulaDupla* celula1, CelulaDupla* celula2) {
+    Jogador temp = celula1->data;
+    celula1->data = celula2->data;
+    celula2->data = temp;
+}
+
+CelulaDupla* partition(ListaDuplamenteEncadeada* lista, CelulaDupla* low, CelulaDupla* high) {
+    // Choose the rightmost element as the pivot
+    Jogador pivot = high->data;
+
+    // Find the correct position of the pivot element in the sorted order
+    CelulaDupla* i = low->ant;
+
+    for (CelulaDupla* j = low; j != high; j = j->prox) {
+        if (compareJogador(j->data, pivot) <= 0) {
+            // If the current element is smaller than or equal to the pivot
+            i = (i == NULL) ? low : i->prox;
+            trocarCelulas(i, j);
+        }
+    }
+
+    i = (i == NULL) ? low : i->prox;
+    trocarCelulas(i, high);
+
+    return i;
+}
+
+void quicksort(ListaDuplamenteEncadeada* lista, CelulaDupla* low, CelulaDupla* high) {
+    if (low != NULL && high != NULL && low != high && low->ant != high) {
+        CelulaDupla* pivot = partition(lista, low, high);
+
+        quicksort(lista, low, pivot->ant);
+        quicksort(lista, pivot->prox, high);
+    }
+}
+
+void sortList(ListaDuplamenteEncadeada* lista) {
+    quicksort(lista, lista->primeiro, lista->ultimo);
+}
+
+
 int main()
 {
     //char path[] = "../src/Players.csv";
@@ -851,8 +947,8 @@ int main()
         jogadores[num_players++] = j;
     }
 
-    FilaLinear fl;
-    inicializarFilaLinear(&fl);
+    ListaDuplamenteEncadeada fl;
+    inicializarListaD(&fl);
 
     char buffer[MAX_STRING_LENGTH];
     while (fgets(buffer, sizeof(buffer), stdin) != NULL)
@@ -870,33 +966,37 @@ int main()
         {
             if (jogadores[b].id == atoi(buffer) ) // && jogadores[b].anoNascimento > 100) // && for bubble and partial insertion to work, due to bad formatation of the csv
             {
-                inserirFilaLinear(&fl,jogadores[b]);
+                inserirFimD(&fl,jogadores[b]);
                 break;
             }
         }
     }
+    
+    sortList(&fl);
 
-    int size;
-    scanf("%d", &size);
+    mostrarListaD(&fl);
 
-    char string[1024];
-    char command[3];
-    int pos;
-    int id;
+    // int size;
+    // scanf("%d", &size);
 
-    for(int i = 0; i < size; i++) {
-        scanf("%s",command);
-         if(strcmp(command, "I") == 0)
-        {
-            scanf("%d",&id);
-            inserirFilaLinear(&fl, jogadorById(jogadores, max_players, id));
-        }
-        else if (strcmp(command, "R") == 0)
-        {
-            removerPrimeiroFilaLinear(&fl);
-        }
+    // char string[1024];
+    // char command[3];
+    // int pos;
+    // int id;
+
+    // for(int i = 0; i < size; i++) {
+    //     scanf("%s",command);
+    //      if(strcmp(command, "I") == 0)
+    //     {
+    //         scanf("%d",&id);
+    //         inserirFilaLinear(&fl, jogadorById(jogadores, max_players, id));
+    //     }
+    //     else if (strcmp(command, "R") == 0)
+    //     {
+    //         removerPrimeiroFilaLinear(&fl);
+    //     }
         
-    }
+    // }
 
 
     // PilhaFlexivel pilha;
