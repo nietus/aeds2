@@ -108,7 +108,7 @@ public class Jogador {
     public static void main(String[] args) throws Exception {
         Scanner sc = new Scanner(System.in);
         String path = "/tmp/players.csv";
-        //path = "../src/Players.csv";
+        // path = "../src/Players.csv";
         ArrayList<Jogador> jogadores = new ArrayList<>();
         String line = "";
         boolean jump_header = true;
@@ -199,18 +199,53 @@ public class Jogador {
         // PilhaFlexivel pilhaFlex = filteredFlexStack(jogadores);
         // pilhaFlex.mostrarRecursivo(pilhaFlex.getTopo(), 0);
 
-        ListaDuplamenteEncadeada listaDupla = filteredListaDupla(jogadores);
-        listaDupla.quicksort();
+        // ListaDuplamenteEncadeada listaDupla = filteredListaDupla(jogadores);
+        // listaDupla.quicksort();
 
-        CelulaDupla current = listaDupla.getPrimeiro();
-        while (current != null) {
-            System.out.println(current.j.toString());
-            current = current.prox;
+        // CelulaDupla current = listaDupla.getPrimeiro();
+        // while (current != null) {
+        //     System.out.println(current.j.toString());
+        //     current = current.prox;
+        // }
+
+        BinaryTree b = filteredBinaryTree(jogadores);
+
+        String s = "";
+
+         while (!(s = MyIO.readLine()).equals("FIM")) {
+            System.out.println(s + " " + b.pesquisar(s));
         }
+
+        // b.emOrdem(b.raiz); //treeSort
 
 
         sc.close();
     }
+
+    private static BinaryTree filteredBinaryTree(ArrayList<Jogador> jogadores) {
+        ArrayList<Integer> n = new ArrayList<>();
+        String s = "";
+        while (!(s = MyIO.readLine()).equals("FIM")) {
+            try {
+                n.add(Integer.parseInt(s));
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+            }
+        }
+        BinaryTree k = new BinaryTree();
+        for (int num : n) {
+            for (Jogador j : jogadores) {
+                if (j.getId() == num) {
+                    try {
+                        k.inserir(j);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+        return k;
+}
 
     private static ListaDuplamenteEncadeada filteredListaDupla(ArrayList<Jogador> jogadores) {
         ArrayList<Integer> n = new ArrayList<>();
@@ -1386,6 +1421,72 @@ class ListaDuplamenteEncadeada {
         }
 
         return estadoComparison;
+    }
+
+}
+
+class No{
+    Jogador j;
+    No esq;
+    No dir;
+    public No(Jogador j){
+        this(j,null,null);
+    }
+    private No(Jogador j, No esq, No dir) {
+        this.j = j;
+        this.esq = esq;
+        this.dir = dir;
+    }
+}
+
+class BinaryTree{
+    No raiz;
+        public void inserir(Jogador j) throws Exception{
+        raiz = inserir(j,raiz);
+    }
+
+   private No inserir(Jogador j, No no) throws Exception {
+        if (no == null) {
+            no = new No(j);
+        } else if (j.getNome().compareTo(no.j.getNome()) < 0) {
+            no.esq = inserir(j, no.esq);
+        } else if (j.getNome().compareTo(no.j.getNome()) > 0) {
+            no.dir = inserir(j, no.dir);
+        } else {
+            throw new Exception("Player with the same name already exists");
+        }
+        return no;
+    }
+
+    public void emOrdem(No no) {
+        long start = System.currentTimeMillis();
+        if (no != null) {
+            emOrdem(no.esq);
+            System.out.println(no.j.getNome());
+            emOrdem(no.dir);
+        }
+        long end = System.currentTimeMillis();
+        Jogador.log("_treesort.txt", end - start, 1);
+    }
+
+    public String pesquisar(String nome) {
+        return "raiz " + pesquisar(raiz, nome);
+    }
+
+    private String pesquisar(No no, String nome) {
+        if (no == null) {
+            return "NAO";
+        }
+
+        int comparacao = nome.compareTo(no.j.getNome());
+
+        if (comparacao < 0) {
+            return "esq " + pesquisar(no.esq, nome);
+        } else if (comparacao > 0) {
+            return "dir " + pesquisar(no.dir, nome);
+        } else {
+            return "SIM";
+        }
     }
 
 }
