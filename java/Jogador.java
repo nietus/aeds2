@@ -108,10 +108,13 @@ public class Jogador {
     public static void main(String[] args) throws Exception {
         Scanner sc = new Scanner(System.in);
         String path = "/tmp/players.csv";
-        // path = "../src/Players.csv";
+        path = "../src/Players.csv";
         ArrayList<Jogador> jogadores = new ArrayList<>();
         String line = "";
         boolean jump_header = true;
+
+        // Creation of the main data structure
+
         try {
             try (BufferedReader br = new BufferedReader(new FileReader(path))) {
                 while ((line = br.readLine()) != null) {
@@ -151,10 +154,7 @@ public class Jogador {
                     if (values.length > 7 && !values[7].trim().isEmpty()) {
                         j.setEstadoNascimento(values[7].trim());
                     }
-                    // for quicksort partial to work properly
-                    if (j.getId() == 919) {
-                        // 919,Curtis Rowe,201,102,"University of California, Los
-                        // Angeles",1949,Bessemer,Alabama
+                    if (j.getId() == 919) { // Missing player
                         j.setNome("Curtis Rowe");
                         j.setAltura(201);
                         j.setPeso(102);
@@ -173,6 +173,7 @@ public class Jogador {
         } catch (NumberFormatException e) {
             e.printStackTrace();
         }
+
         // searchFromIdInput(jogadores);
         // sequentialSearch(jogadores);
         // selectionSort(jogadores);
@@ -183,98 +184,54 @@ public class Jogador {
         // countingSort(jogadores);
         // mergesort(jogadores);
 
-        // Data structures
-        // ListaSequencial lista = filteredSeqList(jogadores);
-        // PilhaSequencial pilha = filteredSeqStack(jogadores);
-
-        // for(int i = 0 ; i < pilha.getTamanho(); i++){
-        // System.out.println(pilha.getJogador(i).customString(i));
-        // }
-
-        // ListaFlexivel listaFlex = filteredFlexList(jogadores);
-        // for(int i = 0 ; i < listaFlex.getTamanho(); i++){
-        // System.out.println(listaFlex.getJogador(i).customString(i));
-        // }
-
-        // PilhaFlexivel pilhaFlex = filteredFlexStack(jogadores);
-        // pilhaFlex.mostrarRecursivo(pilhaFlex.getTopo(), 0);
-
-        // ListaDuplamenteEncadeada listaDupla = filteredListaDupla(jogadores);
-        // listaDupla.quicksort();
-
-        // CelulaDupla current = listaDupla.getPrimeiro();
-        // while (current != null) {
-        //     System.out.println(current.j.toString());
-        //     current = current.prox;
-        // }
-
-        BinaryTree b = filteredBinaryTree(jogadores);
-
         String s = "";
 
-         while (!(s = MyIO.readLine()).equals("FIM")) {
-            System.out.println(s + " " + b.pesquisar(s));
+        // Process the insertion of specific jogadores into another data structure
+
+        Arvore dataStructure = new Arvore();
+
+        while (!(s = MyIO.readLine()).equals("FIM")) {
+            try {
+                dataStructure.inserir(getById(Integer.parseInt(s), jogadores));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
-        // b.emOrdem(b.raiz); //treeSort
-
+        while (!(s = MyIO.readLine()).equals("FIM")) {
+            try {
+                System.out.println(s + " " + dataStructure.pesquisar(s));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
 
         sc.close();
     }
 
-    private static BinaryTree filteredBinaryTree(ArrayList<Jogador> jogadores) {
-        ArrayList<Integer> n = new ArrayList<>();
-        String s = "";
-        while (!(s = MyIO.readLine()).equals("FIM")) {
-            try {
-                n.add(Integer.parseInt(s));
-            } catch (NumberFormatException e) {
-                e.printStackTrace();
+    public static Jogador getByName(String name, ArrayList<Jogador> jogadores) {
+        for (Jogador jogador : jogadores) {
+            if (jogador.getNome().equals(name)) {
+                return jogador;
             }
         }
-        BinaryTree k = new BinaryTree();
-        for (int num : n) {
-            for (Jogador j : jogadores) {
-                if (j.getId() == num) {
-                    try {
-                        k.inserir(j);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }
-        return k;
-}
+        return new Jogador();
+    }
 
-    private static ListaDuplamenteEncadeada filteredListaDupla(ArrayList<Jogador> jogadores) {
-        ArrayList<Integer> n = new ArrayList<>();
-        String s = "";
-        while (!(s = MyIO.readLine()).equals("FIM")) {
-            try {
-                n.add(Integer.parseInt(s));
-            } catch (NumberFormatException e) {
-                e.printStackTrace();
+    public static Jogador getById(int id, ArrayList<Jogador> jogadores) {
+        for (Jogador jogador : jogadores) {
+            if (jogador.getId() == id) {
+                return jogador;
             }
         }
-        ListaDuplamenteEncadeada k = new ListaDuplamenteEncadeada();
-        for (int num : n) {
-            for (Jogador j : jogadores) {
-                if (j.getId() == num) {
-                    k.inserirFim(j);
-                }
-            }
-        }
-        return k;
-}
+        return new Jogador();
+    }
 
     public static void quick(ArrayList<Jogador> jogadores, int k) {
-        // Filtering
-        ArrayList<Jogador> m = filteredList(jogadores);
-        int siz = m.size();
-        partialQuickSort(m, k, 0, siz - 1);
+        int siz = jogadores.size();
+        partialQuickSort(jogadores, k, 0, siz - 1);
         for (int i = 0; i < 10; i++) {
-            System.out.println(m.get(i).toString());
+            System.out.println(jogadores.get(i).toString());
         }
     }
 
@@ -308,33 +265,30 @@ public class Jogador {
 
     public static void partialSelectionSort(ArrayList<Jogador> jogadores, int k) {
 
-        // Filtering
-        ArrayList<Jogador> m = filteredList(jogadores);
-        int siz = m.size();
+        int siz = jogadores.size();
 
         for (int i = 0; i < k; i++) {
             int menor = i;
 
             for (int j = i + 1; j < siz; j++) {
-                if (m.get(menor).getNome().compareTo(m.get(j).getNome()) > 0) {
+                if (jogadores.get(menor).getNome().compareTo(jogadores.get(j).getNome()) > 0) {
                     menor = j;
                 }
             }
 
-            Jogador temp = m.get(i);
-            m.set(i, m.get(menor));
-            m.set(menor, temp);
+            Jogador temp = jogadores.get(i);
+            jogadores.set(i, jogadores.get(menor));
+            jogadores.set(menor, temp);
         }
 
         for (int i = 0; i < 10; i++) {
-            System.out.println(m.get(i).toString());
+            System.out.println(jogadores.get(i).toString());
         }
     }
 
     public static void mergesort(ArrayList<Jogador> jogadores) {
-        ArrayList<Jogador> j = filteredList(jogadores);
-        mergeSort(j, 0, j.size() - 1);
-        for (Jogador c : j) {
+        mergeSort(jogadores, 0, jogadores.size() - 1);
+        for (Jogador c : jogadores) {
             System.out.println(c.toString());
         }
     }
@@ -392,8 +346,7 @@ public class Jogador {
         }
     }
 
-    public static void countingSort(ArrayList<Jogador> j) {
-        ArrayList<Jogador> jogadores = filteredList(j);
+    public static void countingSort(ArrayList<Jogador> jogadores) {
 
         // Find the maximum height to determine the range for counting
         int maxAltura = findMaxAltura(jogadores);
@@ -445,27 +398,24 @@ public class Jogador {
     }
 
     public static void heapSort(ArrayList<Jogador> jogadores) {
-        // Montando o array com os numeros dados
-        ArrayList<Jogador> k = filteredList(jogadores);
 
-        // Algoritmo
         long start = System.currentTimeMillis();
-        int[] counts = { 0, 0 }; // mov and comp
-        int size = k.size();
+        int[] counts = { 0, 0 }; // number of movimentations and comparisons
+        int size = jogadores.size();
         for (int i = size / 2 - 1; i >= 0; i--)
-            heapify(k, size, i, counts);
+            heapify(jogadores, size, i, counts);
 
         for (int i = size - 1; i >= 0; i--) {
-            Jogador temp = k.get(0);
-            k.set(0, k.get(i));
-            k.set(i, temp);
+            Jogador temp = jogadores.get(0);
+            jogadores.set(0, jogadores.get(i));
+            jogadores.set(i, temp);
             counts[0] += 2;
-            heapify(k, i, 0, counts);
+            heapify(jogadores, i, 0, counts);
         }
 
         long end = System.currentTimeMillis();
 
-        for (Jogador jogador : k) {
+        for (Jogador jogador : jogadores) {
             System.out.println(jogador.toString());
         }
 
@@ -506,73 +456,64 @@ public class Jogador {
     }
 
     public static void insertionSort(ArrayList<Jogador> jogadores) {
-        // Montando o array com os numeros dados
-        ArrayList<Jogador> k = filteredList(jogadores);
 
-        // Algoritmo
-        int tam = k.size();
+        int tam = jogadores.size();
         int mov = 0, com = 0;
         long start = System.currentTimeMillis();
         for (int i = 1; i < tam; i++) {
-            Jogador tmp = k.get(i);
+            Jogador tmp = jogadores.get(i);
             int j = i - 1;
-            while (j >= 0 && (k.get(j).getAnoNascimento() > tmp.getAnoNascimento()
-                    || (k.get(j).getAnoNascimento() == tmp.getAnoNascimento()
-                            && k.get(j).getNome().compareTo(tmp.getNome()) > 0))) {
+            while (j >= 0 && (jogadores.get(j).getAnoNascimento() > tmp.getAnoNascimento()
+                    || (jogadores.get(j).getAnoNascimento() == tmp.getAnoNascimento()
+                            && jogadores.get(j).getNome().compareTo(tmp.getNome()) > 0))) {
                 com++;
-                k.set(j + 1, k.get(j));
+                jogadores.set(j + 1, jogadores.get(j));
                 mov++;
                 j--;
             }
-            k.set(j + 1, tmp);
+            jogadores.set(j + 1, tmp);
             mov++;
         }
         long end = System.currentTimeMillis();
-        for (Jogador j : k) {
+        for (Jogador j : jogadores) {
             System.out.println(j.toString());
         }
         log("_insercao.txt", end - start, mov, com);
     }
 
     public static void selectionSort(ArrayList<Jogador> jogadores) {
-        // Montando o array com os numeros dados
-        ArrayList<Jogador> k = filteredList(jogadores);
 
-        // Algoritmo
-        int tam = k.size();
+        int tam = jogadores.size();
         long start = System.currentTimeMillis();
         int mov = 0, com = 0;
         for (int i = 0; i < tam - 1; i++) {
             int m = i;
             for (int j = i + 1; j < tam; j++) {
                 com++;
-                if (k.get(j).getNome().compareTo(k.get(m).getNome()) < 0) {
+                if (jogadores.get(j).getNome().compareTo(jogadores.get(m).getNome()) < 0) {
                     m = j;
                 }
             }
-            Jogador temp = k.get(m);
-            k.set(m, k.get(i));
-            k.set(i, temp);
+            Jogador temp = jogadores.get(m);
+            jogadores.set(m, jogadores.get(i));
+            jogadores.set(i, temp);
             mov += 2;
         }
         long end = System.currentTimeMillis();
-        for (Jogador j : k) {
+        for (Jogador j : jogadores) {
             System.out.println(j.toString());
         }
         log("_selecao.txt", end - start, mov, com);
     }
 
     public static void sequentialSearch(ArrayList<Jogador> jogadores) {
-        // Montando o array com os numeros dados
-        ArrayList<Jogador> k = filteredList(jogadores);
 
-        // Algoritmo
         String s = "";
         long start = System.currentTimeMillis();
         int contador = 0;
         while (!(s = MyIO.readLine()).equals("FIM")) {
             boolean encontrado = false;
-            for (Jogador n : k) {
+            for (Jogador n : jogadores) {
                 contador++;
                 if (n.getNome().equals(s)) {
                     System.out.println("SIM");
@@ -621,43 +562,16 @@ public class Jogador {
         Arq.close();
     }
 
-    public static ArrayList<Jogador> filteredList(ArrayList<Jogador> jogadores) {
-        ArrayList<Integer> n = new ArrayList<>();
-        String s = "";
-        while (!(s = MyIO.readLine()).equals("FIM")) {
-            try {
-                n.add(Integer.parseInt(s));
-            } catch (NumberFormatException e) {
-                e.printStackTrace();
-            }
-        }
-        ArrayList<Jogador> k = new ArrayList<>();
-        for (int num : n) {
-            for (Jogador j : jogadores) {
-                if (j.getId() == num) {
-                    k.add(j);
-                }
-            }
-        }
-        return k;
-    }
-
     public static ListaSequencial filteredSeqList(ArrayList<Jogador> jogadores) throws Exception {
-        ArrayList<Integer> n = new ArrayList<>();
+        ListaSequencial k = new ListaSequencial(1000);
         String s = "";
         while (!(s = MyIO.readLine()).equals("FIM")) {
             try {
-                n.add(Integer.parseInt(s));
+                k.inserirFim(getById(Integer.parseInt(s), jogadores));
             } catch (NumberFormatException e) {
                 e.printStackTrace();
             }
         }
-        ListaSequencial k = new ListaSequencial(1000);
-        for (int num : n) {
-            Jogador j = jogadores.get(num);
-            k.inserirFim(j);
-        }
-
         int size = MyIO.readInt();
 
         for (int i = 0; i < size; i++) {
@@ -701,19 +615,14 @@ public class Jogador {
     }
 
     public static PilhaSequencial filteredSeqStack(ArrayList<Jogador> jogadores) throws Exception {
-        ArrayList<Integer> n = new ArrayList<>();
+        PilhaSequencial k = new PilhaSequencial(1000);
         String s = "";
         while (!(s = MyIO.readLine()).equals("FIM")) {
             try {
-                n.add(Integer.parseInt(s));
+                k.inserir(getById(Integer.parseInt(s), jogadores));
             } catch (NumberFormatException e) {
                 e.printStackTrace();
             }
-        }
-        PilhaSequencial k = new PilhaSequencial(1000);
-        for (int num : n) {
-            Jogador j = jogadores.get(num);
-            k.inserir(j);
         }
 
         int size = MyIO.readInt();
@@ -742,19 +651,14 @@ public class Jogador {
     }
 
     public static ListaFlexivel filteredFlexList(ArrayList<Jogador> jogadores) throws Exception {
-        ArrayList<Integer> n = new ArrayList<>();
+        ListaFlexivel k = new ListaFlexivel();
         String s = "";
         while (!(s = MyIO.readLine()).equals("FIM")) {
             try {
-                n.add(Integer.parseInt(s));
+                k.inserirFim(getById(Integer.parseInt(s), jogadores));
             } catch (NumberFormatException e) {
                 e.printStackTrace();
             }
-        }
-        ListaFlexivel k = new ListaFlexivel();
-        for (int num : n) {
-            Jogador j = jogadores.get(num);
-            k.inserirFim(j);
         }
 
         int size = MyIO.readInt();
@@ -801,34 +705,27 @@ public class Jogador {
     }
 
     public static PilhaFlexivel filteredFlexStack(ArrayList<Jogador> jogadores) throws Exception {
-        ArrayList<Integer> n = new ArrayList<>();
         String s = "";
-    
+        PilhaFlexivel k = new PilhaFlexivel();
+
         while (!(s = MyIO.readLine()).equals("FIM")) {
             try {
-                n.add(Integer.parseInt(s));
+                k.empilhar(getById(Integer.parseInt(s), jogadores));
             } catch (NumberFormatException e) {
                 e.printStackTrace();
             }
         }
-    
-        PilhaFlexivel k = new PilhaFlexivel();
-    
-        for (int num : n) {
-            Jogador j = jogadores.get(num);
-            k.empilhar(j);
-        }
-    
+
         int size = Integer.parseInt(MyIO.readLine());
 
-        for(int i = 0; i < size - 1; i++){
+        for (int i = 0; i < size - 1; i++) {
 
             String command = MyIO.readLine();
-    
+
             String[] parts = command.split(" ");
-    
+
             String operation = parts[0];
-    
+
             switch (operation) {
                 case "I":
                     String idx = parts[1];
@@ -849,7 +746,6 @@ public class Jogador {
 
         return k;
     }
-    
 
     public String customString(int i) {
         return "[" + i + "]" + " ## " + this.nome + " ## " + this.altura + " ## " + this.peso +
@@ -1239,8 +1135,8 @@ class ListaDuplamenteEncadeada {
     public int getTamanho() {
         return tamanho;
     }
-    
-    public CelulaDupla getPrimeiro(){
+
+    public CelulaDupla getPrimeiro() {
         return primeiro;
     }
 
@@ -1425,57 +1321,50 @@ class ListaDuplamenteEncadeada {
 
 }
 
-class No{
+class No {
     Jogador j;
     No esq;
     No dir;
-    public No(Jogador j){
-        this(j,null,null);
-    }
-    private No(Jogador j, No esq, No dir) {
+
+    public No(Jogador j) {
         this.j = j;
-        this.esq = esq;
-        this.dir = dir;
+        this.esq = null;
+        this.dir = null;
     }
 }
 
-class BinaryTree{
+class Arvore {
     No raiz;
-        public void inserir(Jogador j) throws Exception{
-        raiz = inserir(j,raiz);
+
+    public Arvore() {
+        this.raiz = null;
     }
 
-   private No inserir(Jogador j, No no) throws Exception {
-        if (no == null) {
-            no = new No(j);
-        } else if (j.getNome().compareTo(no.j.getNome()) < 0) {
-            no.esq = inserir(j, no.esq);
-        } else if (j.getNome().compareTo(no.j.getNome()) > 0) {
-            no.dir = inserir(j, no.dir);
+    public void inserir(Jogador j) throws Exception {
+        raiz = inserir(j, raiz);
+    }
+
+    public No inserir(Jogador x, No i) throws Exception {
+        if (i == null) {
+            i = new No(x);
+        } else if (x.getNome().compareTo(i.j.getNome()) < 0) {
+            i.esq = inserir(x, i.esq);
+        } else if (x.getNome().compareTo(i.j.getNome()) > 0) {
+            i.dir = inserir(x, i.dir);
         } else {
-            throw new Exception("Player with the same name already exists");
+            throw new Exception("Jogador with name '" + x.getNome() + "' already exists!");
         }
-        return no;
-    }
 
-    public void emOrdem(No no) {
-        long start = System.currentTimeMillis();
-        if (no != null) {
-            emOrdem(no.esq);
-            System.out.println(no.j.getNome());
-            emOrdem(no.dir);
-        }
-        long end = System.currentTimeMillis();
-        Jogador.log("_treesort.txt", end - start, 1);
+        return i;
     }
 
     public String pesquisar(String nome) {
-        return "raiz " + pesquisar(raiz, nome);
+        return pesquisar(raiz, nome);
     }
 
     private String pesquisar(No no, String nome) {
         if (no == null) {
-            return "NAO";
+            return "NAO ";
         }
 
         int comparacao = nome.compareTo(no.j.getNome());
@@ -1485,8 +1374,289 @@ class BinaryTree{
         } else if (comparacao > 0) {
             return "dir " + pesquisar(no.dir, nome);
         } else {
-            return "SIM";
+            return "SIM ";
+        }
+    }
+}
+
+class HashDireta {
+    int area_principal = 21;
+    int area_reserva = 9;
+
+    Jogador tam[];
+    Jogador reserva[];
+
+    int tam_reserva;
+
+    public HashDireta() {
+        this.tam = new Jogador[area_principal];
+        this.reserva = new Jogador[area_principal];
+        this.tam_reserva = 0;
+    }
+
+    public int hash(int i) {
+        return Math.abs(i) % 21;
+    }
+
+    public void inserir(Jogador j) {
+        int chave = hash(j.getAltura());
+        if (tam[chave] == null) {
+            tam[chave] = j;
+        } else if (tam[chave] != null) {
+            if (tam_reserva < area_reserva) {
+                reserva[tam_reserva++] = j;
+            }
         }
     }
 
+    public boolean pesquisar(int i, String s) {
+        int chave = hash(i);
+        if (tam[chave] == null) {
+            return false;
+        } else if (tam[chave].getNome().compareTo(s) == 0) {
+            return true;
+        } else {
+            for (int j = 0; j < area_reserva; j++) {
+                if (reserva[j].getNome().compareTo(s) == 0) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+}
+
+class HashRehash {
+    int area_principal = 25;
+
+    Jogador tam[];
+
+    public HashRehash() {
+        this.tam = new Jogador[area_principal];
+    }
+
+    public int hash(int i) {
+        return Math.abs(i) % 25;
+    }
+
+    public int rehash(int i) {
+        return Math.abs(i + 1) % 25;
+    }
+
+    public void inserir(Jogador j) {
+        int chave = hash(j.getAltura());
+        if (tam[chave] == null) {
+            tam[chave] = j;
+        } else if (tam[chave] != null) {
+            int chave_rehash = rehash(j.getAltura());
+            if (tam[chave_rehash] == null) {
+                tam[chave_rehash] = j;
+            }
+        }
+    }
+
+    public boolean pesquisar(int i, String s) {
+        int chave = hash(i);
+        if (tam[chave] == null) {
+            return false;
+        } else if (tam[chave].getNome().compareTo(s) == 0) {
+            return true;
+        } else {
+            int chave_rehash = rehash(i);
+            if (tam[chave_rehash] == null) {
+                return false;
+            } else if (tam[chave_rehash].getNome().compareTo(s) == 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+}
+
+class NoAN {
+    public boolean cor;
+    public Jogador jogador;
+    public NoAN esq, dir;
+
+    public NoAN() {
+        this(new Jogador());
+    }
+
+    public NoAN(Jogador j) {
+        this(j, false, null, null);
+    }
+
+    public NoAN(Jogador j, boolean cor) {
+        this(j, cor, null, null);
+    }
+
+    public NoAN(Jogador j, boolean cor, NoAN esq, NoAN dir) {
+        this.cor = cor;
+        this.jogador = j;
+        this.esq = esq;
+        this.dir = dir;
+    }
+}
+
+class Alvinegra {
+    private NoAN raiz;
+
+    public Alvinegra() {
+        raiz = null;
+    }
+
+    public String pesquisar(Jogador j) {
+        return pesquisar(j, raiz);
+    }
+
+    private String pesquisar(Jogador j, NoAN i) {
+        if (i == null) {
+            return "NAO";
+        } else if (j.getNome().compareTo(i.jogador.getNome()) == 0) {
+            return "SIM";
+        } else if (j.getNome().compareTo(i.jogador.getNome()) < 0) {
+            return "esq " + pesquisar(j, i.esq);
+        } else {
+            return "dir " + pesquisar(j, i.dir);
+        }
+    }
+
+    public void inserir(Jogador j) throws Exception {
+        // Se a arvore estiver vazia
+        if (raiz == null) {
+            raiz = new NoAN(j);
+
+            // Senao, se a arvore tiver um jogador
+        } else if (raiz.esq == null && raiz.dir == null) {
+            if (j.getAltura() < raiz.jogador.getAltura()) {
+                raiz.esq = new NoAN(j);
+            } else {
+                raiz.dir = new NoAN(j);
+            }
+
+            // Senao, se a arvore tiver dois elementos (raiz e dir)
+        } else if (raiz.esq == null) {
+            if (j.getAltura() < raiz.jogador.getAltura()) {
+                raiz.esq = new NoAN(j);
+
+            } else if (j.getAltura() < raiz.dir.jogador.getAltura()) {
+                raiz.esq = new NoAN(raiz.jogador);
+                raiz.jogador = j;
+
+            } else {
+                raiz.esq = new NoAN(raiz.jogador);
+                raiz.jogador = raiz.dir.jogador;
+                raiz.dir.jogador = j;
+            }
+            raiz.esq.cor = raiz.dir.cor = false;
+
+            // Senao, se a arvore tiver dois elementos (raiz e esq)
+        } else if (raiz.dir == null) {
+            if (j.getAltura() > raiz.jogador.getAltura()) {
+                raiz.dir = new NoAN(j);
+
+            } else if (j.getAltura() > raiz.esq.jogador.getAltura()) {
+                raiz.dir = new NoAN(raiz.jogador);
+                raiz.jogador = j;
+
+            } else {
+                raiz.dir = new NoAN(raiz.jogador);
+                raiz.jogador = raiz.esq.jogador;
+                raiz.esq.jogador = j;
+            }
+            raiz.esq.cor = raiz.dir.cor = false;
+
+        } else {
+            inserir(j, null, null, null, raiz);
+        }
+        raiz.cor = false;
+    }
+
+    private void balancear(NoAN bisavo, NoAN avo, NoAN pai, NoAN i) {
+        // Se o pai tambem e preto, reequilibrar a arvore, rotacionando o avo
+        if (pai.cor == true) {
+            // 4 tipos de reequilibrios e acoplamento
+            if (pai.jogador.getAltura() > avo.jogador.getAltura()) { // rotacao a esquerda ou direita-esquerda
+                if (i.jogador.getAltura() > pai.jogador.getAltura()) {
+                    avo = rotacaoEsq(avo);
+                } else {
+                    avo = rotacaoDirEsq(avo);
+                }
+            } else { // rotacao a direita ou esquerda-direita
+                if (i.jogador.getAltura() < pai.jogador.getAltura()) {
+                    avo = rotacaoDir(avo);
+                } else {
+                    avo = rotacaoEsqDir(avo);
+                }
+            }
+            if (bisavo == null) {
+                raiz = avo;
+            } else if (avo.jogador.getAltura() < bisavo.jogador.getAltura()) {
+                bisavo.esq = avo;
+            } else {
+                bisavo.dir = avo;
+            }
+            // reestabelecer as cores apos a rotacao
+            avo.cor = false;
+            avo.esq.cor = avo.dir.cor = true;
+        }
+    }
+
+    private void inserir(Jogador j, NoAN bisavo, NoAN avo, NoAN pai, NoAN i) {
+        if (i == null) {
+            if (j.getAltura() < pai.jogador.getAltura()) {
+                i = pai.esq = new NoAN(j, true);
+            } else {
+                i = pai.dir = new NoAN(j, true);
+            }
+            if (pai.cor == true) {
+                balancear(bisavo, avo, pai, i);
+            }
+        } else {
+            // Achou um 4-no: eh preciso fragmeta-lo e reequilibrar a arvore
+            if (i.esq != null && i.dir != null && i.esq.cor == true && i.dir.cor == true) {
+                i.cor = true;
+                i.esq.cor = i.dir.cor = false;
+                if (i == raiz) {
+                    i.cor = false;
+                } else if (pai.cor == true) {
+                    balancear(bisavo, avo, pai, i);
+                }
+            }
+            if (j.getAltura() < i.jogador.getAltura()) {
+                inserir(j, avo, pai, i, i.esq);
+            } else if (j.getAltura() > i.jogador.getAltura()) {
+                inserir(j, avo, pai, i, i.dir);
+            }
+        }
+    }
+
+    private NoAN rotacaoDir(NoAN no) {
+        NoAN noEsq = no.esq;
+        NoAN noEsqDir = noEsq.dir;
+
+        noEsq.dir = no;
+        no.esq = noEsqDir;
+
+        return noEsq;
+    }
+
+    private NoAN rotacaoEsq(NoAN no) {
+        NoAN noDir = no.dir;
+        NoAN noDirEsq = noDir.esq;
+
+        noDir.esq = no;
+        no.dir = noDirEsq;
+        return noDir;
+    }
+
+    private NoAN rotacaoDirEsq(NoAN no) {
+        no.dir = rotacaoDir(no.dir);
+        return rotacaoEsq(no);
+    }
+
+    private NoAN rotacaoEsqDir(NoAN no) {
+        no.esq = rotacaoEsq(no.esq);
+        return rotacaoDir(no);
+    }
 }

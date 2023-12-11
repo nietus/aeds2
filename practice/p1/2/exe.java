@@ -17,5 +17,6 @@ public class exe {
                 System.out.println((int)(Math.floor(num)));
             }
         }
+        scanner.close();
     }
 }

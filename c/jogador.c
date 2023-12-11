@@ -7,6 +7,7 @@
 #define MAX_STRING_LENGTH 100
 #define CAPACIDADE 5000
 #define TAMANHO_MAX 5
+#define TABLE_SIZE 25
 
 int num_comp = 0;
 int num_mov = 0;
@@ -423,7 +424,6 @@ void inserirListaSequencial(ListaSequencial *l, Jogador j, int x)
     }
 }
 
-
 void removerInicioListaSequencial(ListaSequencial *l)
 {
     if (l->tam <= 0)
@@ -433,7 +433,7 @@ void removerInicioListaSequencial(ListaSequencial *l)
     else
     {
         Jogador removed = l->lista[0];
-        printf("(R) %s\n",removed.nome);
+        printf("(R) %s\n", removed.nome);
         for (int i = 0; i < l->tam - 1; i++)
         {
             l->lista[i] = l->lista[i + 1];
@@ -452,7 +452,7 @@ void removerFimListaSequencial(ListaSequencial *l)
     {
         int tam = l->tam;
         Jogador removed = l->lista[tam - 1];
-        printf("(R) %s\n",removed.nome);
+        printf("(R) %s\n", removed.nome);
         l->tam--;
     }
 }
@@ -466,7 +466,7 @@ void removerListaSequencial(ListaSequencial *l, int x)
     else
     {
         Jogador removed = l->lista[x];
-        printf("(R) %s\n",removed.nome);
+        printf("(R) %s\n", removed.nome);
         for (int i = x; i < l->tam - 1; i++)
         {
             l->lista[i] = l->lista[i + 1];
@@ -475,78 +475,94 @@ void removerListaSequencial(ListaSequencial *l, int x)
     }
 }
 
-typedef struct Celula {
-    Jogador j;
-    struct Celula *prox;
+typedef struct Celula
+{
+    Jogador jogador;
+    struct Celula *proximo;
 } Celula;
 
-typedef struct PilhaFlexivel {
+typedef struct PilhaFlexivel
+{
     Celula *topo;
     int tamanho;
 } PilhaFlexivel;
 
-void initCelula(Celula *c, Jogador jogador) {
-    c->j = jogador;
-    c->prox = NULL;
+void initCelula(Celula *c, Jogador jogador)
+{
+    c->jogador = jogador;
+    c->proximo = NULL;
 }
 
-void initPilhaFlexivel(PilhaFlexivel *p) {
+void initPilhaFlexivel(PilhaFlexivel *p)
+{
     p->topo = NULL;
     p->tamanho = 0;
 }
 
-int getTamanho(PilhaFlexivel *p) {
+int getTamanho(PilhaFlexivel *p)
+{
     return p->tamanho;
 }
 
-Jogador getJogador(PilhaFlexivel *p, int x) {
-    if (x < 0 || x >= p->tamanho) {
+Jogador getJogador(PilhaFlexivel *p, int x)
+{
+    if (x < 0 || x >= p->tamanho)
+    {
         exit(EXIT_FAILURE);
     }
 
     Celula *atual = p->topo;
-    for (int i = 0; i < x; i++) {
-        atual = atual->prox;
+    for (int i = 0; i < x; i++)
+    {
+        atual = atual->proximo;
     }
 
-    return atual->j;
+    return atual->jogador;
 }
 
-Celula *getTopo(PilhaFlexivel *p) {
-    if (p->topo == NULL) {
+Celula *getTopo(PilhaFlexivel *p)
+{
+    if (p->topo == NULL)
+    {
         exit(EXIT_FAILURE);
     }
     return p->topo;
 }
 
-Jogador getJogadorTopo(PilhaFlexivel *p) {
-    if (p->topo == NULL) {
+Jogador getJogadorTopo(PilhaFlexivel *p)
+{
+    if (p->topo == NULL)
+    {
         exit(EXIT_FAILURE);
     }
-    return p->topo->j;
+    return p->topo->jogador;
 }
 
-void empilhar(PilhaFlexivel *p, Jogador j) {
+void empilhar(PilhaFlexivel *p, Jogador j)
+{
     Celula *novaCelula = (Celula *)malloc(sizeof(Celula));
-    if (novaCelula == NULL) {
+    if (novaCelula == NULL)
+    {
         exit(EXIT_FAILURE);
     }
 
-    novaCelula->j = j;
-    novaCelula->prox = p->topo;
+    novaCelula->jogador = j;
+    novaCelula->proximo = p->topo;
     p->topo = novaCelula;
     p->tamanho++;
 }
 
-Jogador desempilhar(PilhaFlexivel *p) {
-    if (p->topo == NULL) {
+Jogador desempilhar(PilhaFlexivel *p)
+{
+    if (p->topo == NULL)
+    {
         exit(EXIT_FAILURE);
     }
 
-    Jogador removido = p->topo->j;
+    Jogador removido = p->topo->jogador;
     Celula *tmp = p->topo;
-    p->topo = p->topo->prox;
-    tmp->prox = NULL;
+    p->topo = p->topo->proximo;
+    tmp->proximo = NULL;
     free(tmp);
     p->tamanho--;
 
@@ -569,145 +585,169 @@ void printArrayCustom(ListaSequencial *l, int n, int i)
     }
 }
 
-
-void printArrayCustomPilhaRec(Celula *c, int *i) {
-    if (c != NULL) {
-        printArrayCustomPilhaRec(c->prox, i);
-        printCustom(c->j, (*i)++);
+void printArrayCustomPilhaRec(Celula *c, int *i)
+{
+    if (c != NULL)
+    {
+        printArrayCustomPilhaRec(c->proximo, i);
+        printCustom(c->jogador, (*i)++);
     }
 }
 
-void printArrayCustomPilha(PilhaFlexivel *p, int n, int i) {
+void printArrayCustomPilha(PilhaFlexivel *p, int n, int i)
+{
     printArrayCustomPilhaRec(p->topo, &i);
 }
 
-
-Jogador jogadorById(Jogador* jogadores, int n, int x){
+Jogador jogadorById(Jogador *jogadores, int n, int x)
+{
     for (int j = 0; j < n; j++)
     {
-        if(jogadores[j].id == x){
+        if (jogadores[j].id == x)
+        {
             return jogadores[j];
         }
     }
     return jogadores[0];
 }
 
-
-typedef struct {
+typedef struct
+{
     Celula *inicio;
-    int size; 
-    double alturaMedia; 
+    int size;
+    double alturaMedia;
 } FilaFlexivel;
 
-void atualizarMedia(FilaFlexivel *l) {
+void atualizarMedia(FilaFlexivel *l)
+{
     double alturaTotal = 0.0;
     Celula *atual = l->inicio;
 
-    while (atual != NULL) {
-        alturaTotal += atual->j.altura;
-        atual = atual->prox;
+    while (atual != NULL)
+    {
+        alturaTotal += atual->jogador.altura;
+        atual = atual->proximo;
     }
 
     l->alturaMedia = l->size > 0 ? alturaTotal / l->size : 0.0;
     printf("%.0f\n", l->alturaMedia);
 }
 
-void initFilaFlexivel(FilaFlexivel *l) {
+void initFilaFlexivel(FilaFlexivel *l)
+{
     l->inicio = NULL;
     l->size = 0;
     l->alturaMedia = 0.0;
 }
 
-void removerPrimeiro(FilaFlexivel *ff) {
-    if (ff->inicio == NULL) {
+void removerPrimeiro(FilaFlexivel *ff)
+{
+    if (ff->inicio == NULL)
+    {
         printf("Empty!\n");
         return;
     }
 
     Celula *removida = ff->inicio;
-    ff->inicio = ff->inicio->prox;
+    ff->inicio = ff->inicio->proximo;
     free(removida);
 
     ff->size--;
 }
 
-void inserirFimFilaFlexivel(FilaFlexivel *l, Jogador j) {
-    if (l->size == 5) {
+void inserirFimFilaFlexivel(FilaFlexivel *l, Jogador j)
+{
+    if (l->size == 5)
+    {
         removerPrimeiro(l);
     }
 
     Celula *novaCelula = (Celula *)malloc(sizeof(Celula));
-    if (novaCelula == NULL) {
+    if (novaCelula == NULL)
+    {
         exit(EXIT_FAILURE);
     }
 
-    novaCelula->j = j;
-    novaCelula->prox = NULL;
+    novaCelula->jogador = j;
+    novaCelula->proximo = NULL;
 
-    if (l->inicio == NULL) {
+    if (l->inicio == NULL)
+    {
         l->inicio = novaCelula;
-    } else {
+    }
+    else
+    {
         Celula *atual = l->inicio;
-        while (atual->prox != NULL) {
-            atual = atual->prox;
+        while (atual->proximo != NULL)
+        {
+            atual = atual->proximo;
         }
-        atual->prox = novaCelula;
+        atual->proximo = novaCelula;
     }
 
     l->size++;
     atualizarMedia(l);
 }
 
-void removerInicioFilaFlexivel(FilaFlexivel *l) {
-    if (l->inicio == NULL) {
+void removerInicioFilaFlexivel(FilaFlexivel *l)
+{
+    if (l->inicio == NULL)
+    {
         printf("Empty!\n");
         return;
     }
     Celula *removida = l->inicio;
-    printf("(R) %s\n",removida->j.nome);
-    l->inicio = l->inicio->prox;
+    printf("(R) %s\n", removida->jogador.nome);
+    l->inicio = l->inicio->proximo;
     free(removida);
 
     l->size--;
     atualizarMedia(l);
 }
 
-void printListaCustom(FilaFlexivel *l, int i) {
+void printListaCustom(FilaFlexivel *l, int i)
+{
     Celula *atual = l->inicio;
 
-    while (atual != NULL) {
-        // Assuming printCustom is a function to print Jogador
-        printCustom(atual->j, i++);
-        atual = atual->prox;
+    while (atual != NULL)
+    {
+        printCustom(atual->jogador, i++);
+        atual = atual->proximo;
     }
 }
 
-void printJogador(Jogador j) {
+void printJogador(Jogador j)
+{
     printf("[%d ## %s ## %d ## %d ## %d ## %s ## %s ## %s]\n",
            j.id, j.nome, j.altura, j.peso,
            j.anoNascimento, j.universidade,
            j.cidadeNascimento, j.estadoNascimento);
 }
 
-void printFilaFlexivel(FilaFlexivel *l) {
+void printFilaFlexivel(FilaFlexivel *l)
+{
     Celula *atual = l->inicio;
-    while (atual != NULL) {
-        printJogador(atual->j);
-        atual = atual->prox;
+    while (atual != NULL)
+    {
+        printJogador(atual->jogador);
+        atual = atual->proximo;
     }
 }
 
-typedef struct {
+typedef struct
+{
     Jogador fila[TAMANHO_MAX];
-    int front;  // Points to the front of the queue
-    int rear;   // Points to the next available position
-    int size;   // Current number of elements in the queue
+    int front; // Points to the front of the queue
+    int rear;  // Points to the next available position
+    int size;  // Current number of elements in the queue
 } FilaLinear;
 
-void atualizarMediaLinear(Jogador fila[], int size) {
+void atualizarMediaLinear(Jogador fila[], int size)
+{
     double alturaTotal = 0.0;
 
-    for (int i = 0; i < size; i++) {
+    for (int i = 0; i < size; i++)
+    {
         alturaTotal += fila[i].altura;
     }
 
@@ -715,82 +755,91 @@ void atualizarMediaLinear(Jogador fila[], int size) {
     printf("%.0f\n", alturaMedia);
 }
 
-void inicializarFilaLinear(FilaLinear *fila) {
+void inicializarFilaLinear(FilaLinear *fila)
+{
     fila->front = 0;
     fila->rear = 0;
     fila->size = 0;
 }
 
-void removerPrimeiroFilaLinear(FilaLinear *fila) {
-    if (fila->size == 0) {
+void removerPrimeiroFilaLinear(FilaLinear *fila)
+{
+    if (fila->size == 0)
+    {
         printf("Empty!\n");
         return;
     }
 
-    // Remove the first element
     printf("(R) %s\n", fila->fila[fila->front].nome);
     fila->front = (fila->front + 1) % TAMANHO_MAX;
     fila->size--;
 
-    // Update the mean
     atualizarMediaLinear(fila->fila, fila->size);
 }
 
-void inserirFilaLinear(FilaLinear *fila, Jogador j) {
-    if (fila->size == TAMANHO_MAX) {
-        // If the queue is full, remove the first element
+void inserirFilaLinear(FilaLinear *fila, Jogador j)
+{
+    if (fila->size == TAMANHO_MAX)
+    {
         fila->front = (fila->front + 1) % TAMANHO_MAX;
         fila->size--;
     }
 
-    // Add the new element
     fila->fila[fila->rear] = j;
     fila->rear = (fila->rear + 1) % TAMANHO_MAX;
     fila->size++;
 
-    // Update the mean
     atualizarMediaLinear(fila->fila, fila->size);
 }
 
-void printFilaLinear(FilaLinear *fila) {
+void printFilaLinear(FilaLinear *fila)
+{
     int i = fila->front;
     int count = 0;
 
-    while (count < fila->size) {
+    while (count < fila->size)
+    {
         printf("[%s ## %d]\n", fila->fila[i].nome, fila->fila[i].altura);
         i = (i + 1) % TAMANHO_MAX;
         count++;
     }
 }
 
-typedef struct CelulaDupla {
+typedef struct CelulaDupla
+{
     Jogador data;
-    struct CelulaDupla* ant;
-    struct CelulaDupla* prox;
+    struct CelulaDupla *ant;
+    struct CelulaDupla *prox;
 } CelulaDupla;
 
-typedef struct {
-    CelulaDupla* primeiro;
-    CelulaDupla* ultimo;
+typedef struct
+{
+    CelulaDupla *primeiro;
+    CelulaDupla *ultimo;
     int tamanho;
 } ListaDuplamenteEncadeada;
 
-void inicializarListaD(ListaDuplamenteEncadeada* lista) {
+void inicializarListaD(ListaDuplamenteEncadeada *lista)
+{
     lista->primeiro = NULL;
     lista->ultimo = NULL;
     lista->tamanho = 0;
 }
 
-void inserirFimD(ListaDuplamenteEncadeada* lista, Jogador j) {
-    CelulaDupla* novaCelula = (CelulaDupla*)malloc(sizeof(CelulaDupla));
+void inserirFimD(ListaDuplamenteEncadeada *lista, Jogador j)
+{
+    CelulaDupla *novaCelula = (CelulaDupla *)malloc(sizeof(CelulaDupla));
     novaCelula->data = j;
     novaCelula->ant = NULL;
     novaCelula->prox = NULL;
 
-    if (lista->tamanho == 0) {
+    if (lista->tamanho == 0)
+    {
         lista->primeiro = novaCelula;
         lista->ultimo = novaCelula;
-    } else {
+    }
+    else
+    {
         novaCelula->ant = lista->ultimo;
         lista->ultimo->prox = novaCelula;
         lista->ultimo = novaCelula;
@@ -799,41 +848,46 @@ void inserirFimD(ListaDuplamenteEncadeada* lista, Jogador j) {
     lista->tamanho++;
 }
 
-void mostrarListaD(ListaDuplamenteEncadeada* lista) {
-    CelulaDupla* atual = lista->primeiro;
+void mostrarListaD(ListaDuplamenteEncadeada *lista)
+{
+    CelulaDupla *atual = lista->primeiro;
 
-    while (atual != NULL) {
+    while (atual != NULL)
+    {
         printJogador(atual->data);
         atual = atual->prox;
     }
 }
 
-int compareJogador(Jogador j1, Jogador j2) {
+int compareJogador(Jogador j1, Jogador j2)
+{
     int estadoComparison = strcmp(j1.estadoNascimento, j2.estadoNascimento);
 
-    if (estadoComparison == 0) {
+    if (estadoComparison == 0)
+    {
         return strcmp(j1.nome, j2.nome);
     }
 
     return estadoComparison;
 }
 
-void trocarCelulas(CelulaDupla* celula1, CelulaDupla* celula2) {
+void trocarCelulas(CelulaDupla *celula1, CelulaDupla *celula2)
+{
     Jogador temp = celula1->data;
     celula1->data = celula2->data;
     celula2->data = temp;
 }
 
-CelulaDupla* partition(ListaDuplamenteEncadeada* lista, CelulaDupla* low, CelulaDupla* high) {
-    // Choose the rightmost element as the pivot
+CelulaDupla *partition(ListaDuplamenteEncadeada *lista, CelulaDupla *low, CelulaDupla *high)
+{
     Jogador pivot = high->data;
 
-    // Find the correct position of the pivot element in the sorted order
-    CelulaDupla* i = low->ant;
+    CelulaDupla *i = low->ant;
 
-    for (CelulaDupla* j = low; j != high; j = j->prox) {
-        if (compareJogador(j->data, pivot) <= 0) {
-            // If the current element is smaller than or equal to the pivot
+    for (CelulaDupla *j = low; j != high; j = j->prox)
+    {
+        if (compareJogador(j->data, pivot) <= 0)
+        {
             i = (i == NULL) ? low : i->prox;
             trocarCelulas(i, j);
         }
@@ -845,24 +899,103 @@ CelulaDupla* partition(ListaDuplamenteEncadeada* lista, CelulaDupla* low, Celula
     return i;
 }
 
-void quicksort(ListaDuplamenteEncadeada* lista, CelulaDupla* low, CelulaDupla* high) {
-    if (low != NULL && high != NULL && low != high && low->ant != high) {
-        CelulaDupla* pivot = partition(lista, low, high);
+void quicksort(ListaDuplamenteEncadeada *lista, CelulaDupla *low, CelulaDupla *high)
+{
+    if (low != NULL && high != NULL && low != high && low->ant != high)
+    {
+        CelulaDupla *pivot = partition(lista, low, high);
 
         quicksort(lista, low, pivot->ant);
         quicksort(lista, pivot->prox, high);
     }
 }
 
-void sortList(ListaDuplamenteEncadeada* lista) {
+void sortList(ListaDuplamenteEncadeada *lista)
+{
     quicksort(lista, lista->primeiro, lista->ultimo);
 }
 
+typedef struct
+{
+    Celula *cabeca;
+} HashTable;
+
+void initHash(HashTable *hashTableArray, int size)
+{
+    for (int i = 0; i < size; i++)
+    {
+        hashTableArray[i].cabeca = NULL;
+    }
+}
+
+int hash(int key, int tableSize)
+{
+    return key % tableSize;
+}
+
+void inserir(HashTable *table, Jogador j, int tableSize)
+{
+    int chave = hash(j.altura, tableSize);
+
+    Celula *novaCelula = (Celula *)malloc(sizeof(Celula));
+    if (novaCelula == NULL)
+    {
+        return;
+    }
+
+    novaCelula->jogador = j;
+    novaCelula->proximo = table[chave].cabeca;
+    table[chave].cabeca = novaCelula;
+}
+
+int search(HashTable *hashTableArray, int tableSize, char *buffer, int hash)
+{
+    char playerName[MAX_STRING_LENGTH];
+    strcpy(playerName, buffer);
+
+    int chave = hash;
+
+    Celula *celulaAtual = hashTableArray[chave].cabeca;
+    while (celulaAtual != NULL)
+    {
+        if (strcmp(celulaAtual->jogador.nome, playerName) == 0)
+        {
+            return 1;
+        }
+        celulaAtual = celulaAtual->proximo;
+    }
+
+    return 0;
+}
+
+Jogador getJogadorByNome(Jogador *jogadores, char *buffer)
+{
+    for (int i = 0; i < 1000; i++)
+    {
+        if (strcmp(jogadores[i].nome, buffer) == 0)
+        {
+            return jogadores[i];
+        }
+    }
+    return jogadores[0];
+}
+
+Jogador getJogadorById(Jogador *jogadores, int buffer)
+{
+    for (int i = 0; i < 1000; i++)
+    {
+        if (jogadores[i].id == buffer)
+        {
+            return jogadores[i];
+        }
+    }
+    return jogadores[0];
+}
 
 int main()
 {
-    //char path[] = "../src/Players.csv";
-    char path[] = "/tmp/players.csv";
+    char path[] = "../src/Players.csv";
+    //char path[] = "/tmp/players.csv";
 
     FILE *file = fopen(path, "r");
     if (file == NULL)
@@ -947,175 +1080,27 @@ int main()
         jogadores[num_players++] = j;
     }
 
-    ListaDuplamenteEncadeada fl;
-    inicializarListaD(&fl);
+    char buffer[50];
 
-    char buffer[MAX_STRING_LENGTH];
-    while (fgets(buffer, sizeof(buffer), stdin) != NULL)
+    HashTable h[25];
+    initHash(h, 25);
+
+    while (strcmp(fgets(buffer, sizeof(buffer), stdin), "FIM\n") != 0)
     {
-        size_t len = strlen(buffer);
-        if (len > 0 && buffer[len - 1] == '\n')
-        {
-            buffer[len - 1] = '\0';
-        }
-        if (strcmp(buffer, "FIM") == 0)
-        {
-            break;
-        }
-        for (int b = 0; b < num_players; b++)
-        {
-            if (jogadores[b].id == atoi(buffer) ) // && jogadores[b].anoNascimento > 100) // && for bubble and partial insertion to work, due to bad formatation of the csv
-            {
-                inserirFimD(&fl,jogadores[b]);
-                break;
-            }
-        }
+        buffer[strcspn(buffer, "\n")] = '\0';
+
+        Jogador jogador = getJogadorById(jogadores, atoi(buffer));
+        inserir(h, jogador, 25);
     }
-    
-    sortList(&fl);
 
-    mostrarListaD(&fl);
-
-    // int size;
-    // scanf("%d", &size);
-
-    // char string[1024];
-    // char command[3];
-    // int pos;
-    // int id;
-
-    // for(int i = 0; i < size; i++) {
-    //     scanf("%s",command);
-    //      if(strcmp(command, "I") == 0)
-    //     {
-    //         scanf("%d",&id);
-    //         inserirFilaLinear(&fl, jogadorById(jogadores, max_players, id));
-    //     }
-    //     else if (strcmp(command, "R") == 0)
-    //     {
-    //         removerPrimeiroFilaLinear(&fl);
-    //     }
-        
-    // }
-
-
-    // PilhaFlexivel pilha;
-    // initPilhaFlexivel(&pilha);
-
-    // char buffer[MAX_STRING_LENGTH];
-    // while (fgets(buffer, sizeof(buffer), stdin) != NULL)
-    // {
-    //     size_t len = strlen(buffer);
-    //     if (len > 0 && buffer[len - 1] == '\n')
-    //     {
-    //         buffer[len - 1] = '\0';
-    //     }
-    //     if (strcmp(buffer, "FIM") == 0)
-    //     {
-    //         break;
-    //     }
-    //     for (int b = 0; b < num_players; b++)
-    //     {
-    //         if (jogadores[b].id == atoi(buffer) ) // && jogadores[b].anoNascimento > 100) // && for bubble and partial insertion to work, due to bad formatation of the csv
-    //         {
-    //             empilhar(&pilha,jogadores[b]);
-    //             break;
-    //         }
-    //     }
-    // }
-
-    // int size;
-    // scanf("%d", &size);
-
-    // char string[1024];
-    // char command[3];
-    // int pos;
-    // int id;
-
-    // for(int i = 0; i < size; i++) {
-    //     scanf("%s",command);
-    //      if(strcmp(command, "I") == 0)
-    //     {
-    //         scanf("%d",&id);
-    //         empilhar(&pilha,jogadorById(jogadores,max_players,id));
-    //     }
-    //     else if (strcmp(command, "R") == 0)
-    //     {
-    //         Jogador j = desempilhar(&pilha);
-    //         printf("(R) %s\n",j.nome);
-    //     }
-    // }
-
-    // printArrayCustomPilha(&pilha, pilha.tamanho, 0);
-
-    // int size;
-    // scanf("%d", &size);
-
-    // char string[1024];
-    // char command[3];
-    // int pos;
-    // int id;
-
-    // for(int i = 0; i < size; i++) {
-    //     scanf("%s",command);
-    //      if(strcmp(command, "II") == 0)
-    //     {
-    //         scanf("%d",&id);
-    //         inserirInicioListaSequencial(&l, jogadorById(jogadores, max_players, id));
-    //     }
-    //     else if (strcmp(command, "I*") == 0)
-    //     {
-    //         scanf("%d %d",&pos, &id);
-    //         inserirListaSequencial(&l, jogadorById(jogadores, max_players, id), pos);
-    //         //printf("Inserido em %d: %d\n",pos, id);
-    //     }
-    //     else if (strcmp(command, "IF") == 0)
-    //     {
-    //         scanf("%d",&id);
-    //         inserirFimListaSequencial(&l,jogadorById(jogadores, num_players, id));
-    //     }
-    //     else if (strcmp(command, "RI") == 0)
-    //     {
-    //         removerInicioListaSequencial(&l);
-    //     }
-    //     else if (strcmp(command, "R*") == 0)
-    //     {
-    //         scanf("%d",&id);
-    //         removerListaSequencial(&l, id);
-    //     }
-    //     else if (strcmp(command, "RF") == 0)
-    //     {
-    //         removerFimListaSequencial(&l);
-    //     }
-    // }
-
-    // printArrayCustom(&l, l.tam, 0);
-
-    // selectionSortRec(k, 0, i);
-
-    // shellSort(k,i);
-
-    // quickSort(k, 0, i - 1);
-
-    // bubble(k, i);
-
-    // radixsort(k, i);
-
-    // partialInsertionSort(k, i, 10); // 10 is the partial variable for the exercise
-
-    // partialHeapSort(k,i,10);
-
-    // printArrayP(k, 10);
-
-    // Free
-    for (int idx = 0; idx < num_players; idx++)
+    while (strcmp(fgets(buffer, sizeof(buffer), stdin), "FIM\n") != 0)
     {
-        freeJogador(&jogadores[idx]);
-    }
-    free(jogadores);
-    // free(k);
+        buffer[strcspn(buffer, "\n")] = '\0';
 
-    fclose(file);
+        int jogadorEncontrado = search(h, 25, buffer, hash(getJogadorByNome(jogadores, buffer).altura, 25));
+
+        printf("%s %s\n", buffer, (jogadorEncontrado ? "SIM" : "NAO"));
+    }
 
     return 0;
 }
